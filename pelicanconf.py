@@ -11,7 +11,8 @@ TIMEZONE = 'Europe/Paris'
 DEFAULT_LANG = 'fr'
 
 #GITHUB_URL = 'http://github.com/ametaireau/'
-#DISQUS_SITENAME = "blog-notmyidea"
+
+DISQUS_SITENAME = "chirouxorg"
 PDF_GENERATOR = False
 REVERSE_CATEGORY_ORDER = True
 LOCALE = "C"
