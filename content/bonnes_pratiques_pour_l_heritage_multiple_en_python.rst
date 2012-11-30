@@ -1,7 +1,7 @@
 Bonnes pratiques pour l'héritage multiple en python
 ===================================================
 :tags: python, programmation, objet
-:category: Python
+:category: python
 :tags: python, programmation
 :lang: fr
 :slug: temp

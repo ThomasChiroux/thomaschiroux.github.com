@@ -1,7 +1,7 @@
 Installation d'un couple de serveurs dhcp et dns redondants
 ###########################################################
 :date: 2009-09-30 00:15
-:category: Administration Système
+:category: adminsys
 :tags: bind, configuration, dhcp, jaunty, linux, redondant, ubuntu
 :lang: fr
 
