@@ -1,7 +1,7 @@
 Installation d'un serveur web sécurisé sous Ubuntu server (9.04 à 10.04)
 ########################################################################
 :date: 2009-08-18 00:58
-:category: Administration Système
+:category: adminsys
 :tags: 9.04, configuration, installation, jaunty, lighttpd, linux, mysql, php, ubuntu
 :slug: installation-dun-serveur-web-securise-sous-ubuntu-9-04server
 :lang: fr

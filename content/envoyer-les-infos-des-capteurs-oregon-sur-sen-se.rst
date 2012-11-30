@@ -1,7 +1,7 @@
 Envoyer les infos des capteurs oregon sur sen.se
 ################################################
 :date: 2011-08-12 17:18
-:category: Python
+:category: python
 :tags: domotique, internet des objets, oregon, Programmation, Python, rfx-com, xpl
 :lang: fr
 

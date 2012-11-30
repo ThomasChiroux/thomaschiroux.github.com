@@ -1,6 +1,6 @@
 blog re-(re-)^n-boot
 ====================
-
+:date: 2012-11-30 00:25
 :category: meta
 
 Allez encore un re-re boot du blog.
@@ -16,4 +16,7 @@ Un autre gros avantage (pour moi en tout cas): on peut rédiger ses articles en 
 et personnellement (notamment dans les documentations des projets de développement python).
 
 Bon je ne suis pour l'instant pas foulé pour les thèmes & co: je prends celui par défaut, il est sobre et simple.
+
+J'en profite pour basculer sur chiroux.org par defaut (les autres domaines redirigeant vers celui ci), alors qu'avant je redirigeait vers chiroux.com
+J'ai aussi nettoyé les vieux articles obsolètes, tant pis pour eux, ils partent dans la mémoire perdue d'internet. et paf!
 
