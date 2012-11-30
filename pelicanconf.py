@@ -4,7 +4,7 @@
 AUTHOR = u"Thomas Chiroux"
 SITENAME = u"chiroux.org"
 SITEURL = 'http://chiroux.org'
-#THEME = 'notmyidea'
+THEME = 'chirouxorg'
 
 TIMEZONE = 'Europe/Paris'
 
@@ -32,4 +32,6 @@ LINKS = (('afpy', 'http://www.afpy.org/'),
 SOCIAL = (('twitter', 'https://twitter.com/ThomasChiroux'),
           ('google+', 'https://plus.google.com/113683015116617526200/'),
           ('github', 'https://github.com/ThomasChiroux'))
+
+TWITTER_USERNAME = "ThomasChiroux"
 
