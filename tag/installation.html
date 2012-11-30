@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>chiroux.org - installation</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href=".././theme/css/main.css" type="text/css" />
+        
+        <link href="http://chiroux.org/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="chiroux.org Atom Feed" />
+        
+        
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href=".././css/ie.css"/>
+                <script src=".././js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href=".././css/ie6.css"/><![endif]-->
+
+</head>
+
+<body id="index" class="home">
+
+        <header id="banner" class="body">
+                <h1><a href="../.">chiroux.org </a></h1>
+                <nav><ul>
+                
+                
+                
+                
+                
+                    <li ><a href=".././category/meta.html">meta</a></li>
+                
+                    <li ><a href=".././category/python.html">Python</a></li>
+                
+                    <li ><a href=".././category/administration-systeme.html">Administration Système</a></li>
+                
+                </ul></nav>
+        </header><!-- /#banner -->
+                
+
+            
+
+        
+        
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href=".././installation-dun-serveur-web-securise-sous-ubuntu-9-04server.html">Installation d'un serveur web sécurisé sous Ubuntu server (9.04 à 10.04)</a></h1> 
+                    <footer class="post-info">
+        <abbr class="published" title="2009-08-18T00:58:00">
+                Tue 18 August 2009
+        </abbr>
+
+        
+        <address class="vcard author">
+                By <a class="url fn" href=".././author/thomas-chiroux.html">Thomas Chiroux</a>
+        </address>
+        
+<p>In <a href=".././category/administration-systeme.html">Administration Système</a>. </p>
+<p>tags: <a href=".././tag/904.html">9.04</a><a href=".././tag/configuration.html">configuration</a><a href=".././tag/installation.html">installation</a><a href=".././tag/jaunty.html">jaunty</a><a href=".././tag/lighttpd.html">lighttpd</a><a href=".././tag/linux.html">linux</a><a href=".././tag/mysql.html">mysql</a><a href=".././tag/php.html">php</a><a href=".././tag/ubuntu.html">ubuntu</a></p>
+
+
+</footer><!-- /.post-info --><img alt="ubuntu logo" src="../static/media/images/ubuntu-logo.png" style="width: 105px; height: 100px;" />
+<p>Cet article est le premier d'une série sur l'admin
+système linux. On va donc commencer par les bases : installer un ubuntu
+server avec une sécurité correcte et on en profite pour installer un
+LLMP dessus (c'est LAMP mais avec Lighttpd à la place de apache :-))
+Pour ce tuto, j'ai choisi d'utiliser <a class="reference external" href="https://www.gandi.net/hebergement/">un serveur virtuel de chez gandi</a>
+: je profite d'une offre d'été qui propose un serveur gratuit pendant un
+mois. J'avais beta testé cette offre il y a un an et demi, mais les trop
+gros problèmes d'accès disque (lenteurs notamment) m'avaient incité à
+partir prendre un RPS chez OVH. Maintenant la situation change : l'offre
+de gandi est plus mûre (et l'archi disque a notamment changée : c'est
+maintenant du SAS directement sur les serveurs) et les <a class="reference external" href="http://forum.ovh.com/showthread.php?t=49747">RPS d'ovh vont
+disparaitre</a>. Je vais donc profiter de cette installation pour faire
+quelques benchs sur l'offre gandi et voir si je (re)bascule dessus ou
+pas ensuite. En attendant, voici de quoi installer le serveur</p>
+<div class="section" id="du-cote-de-gandi">
+<h2>Du côté de gandi</h2>
+<ul class="simple">
+<li>Administration / Hebergement : cliquer sur créer un serveur</li>
+<li>Valider le nombre de parts</li>
+<li>Choisir Installation expert et Ubuntu 9.04</li>
+<li>Choisir un hostname, un nom d'utilisateur et un mot de passe [si
+possible, choisir un nom de user non standard, pour améliorer la
+sécurité]</li>
+<li>Valider, et attendre le mail de confirmation avec <a class="reference external" href="mailto:l'&#64;IP">l'&#64;IP</a> du serveur</li>
+<li>Ensuite, on peut se connecter en SSH sur le serveur avec le login et
+pass entré juste avant.</li>
+</ul>
+<p>Ajouter un disque de données :</p>
+<ul class="simple">
+<li>sur l'interfance gandi, onglet Gestion des disque, cliquer sur Créer
+un disque</li>
+<li>choisir un nom pour le disque, la taille souhaitée et le filesystem</li>
+<li>enfin, une fois le disque créé, cliquer sur le petit logo 'link'
+attacher le disque à un serveur</li>
+<li>choisir le serveur et valider</li>
+<li>le volume est dynamiquement ajouté au serveur dans
+/srv/nomduvolumechoisi</li>
+</ul>
+</div>
+<div class="section" id="organiser-les-users">
+<h2>Organiser les users</h2>
+<p>Le login créé (ici: testuser) n'est pas par défaut dans la liste des
+sudoers, donc pas de sudo possible. Le mot de passe root par défaut est
+le même que celui du user testuser</p>
+<div class="section" id="on-va-donc-d-abord-autoriser-le-sudo-pour-testuser">
+<h3>On va donc d'abord autoriser le sudo pour testuser :</h3>
+<p>en tant que root :</p>
+<div class="highlight"><pre>visudo
+</pre></div>
+<p>et ajouter à la fin du fichier:</p>
+<div class="highlight"><pre><span class="c"># Members of the admin group may gain</span>
+root privileges %admin <span class="nv">ALL</span><span class="o">=(</span>ALL<span class="o">)</span> ALL
+</pre></div>
+</div>
+<div class="section" id="ensuite-on-va-ajouter-testuser-dans-le-groupe-admin">
+<h3>Ensuite on va ajouter testuser dans le groupe admin :</h3>
+<p>toujours en tant que root :</p>
+<div class="highlight"><pre>usermod -G admin testuser
+</pre></div>
+</div>
+<div class="section" id="enfin-on-change-le-mot-de-passe-root">
+<h3>Enfin on change le mot de passe root</h3>
+<p>en tant que root:</p>
+<div class="highlight"><pre>passwd
+</pre></div>
+<p>et entrer un bon mot de passe bien sécurisé A partir de maintenant, sauf mention
+spécifique, le reste des commandes sera réalisée avec le user testuser</p>
+</div>
+</div>
+<div class="section" id="mise-a-jour-du-systeme">
+<h2>Mise à jour du système</h2>
+<p>Afin de démarrer sur un système tout propre</p>
+<div class="highlight"><pre>sudo apt-get update sudo apt-get upgrade
+</pre></div>
+</div>
+<div class="section" id="installer-et-configurer-de-quoi-bien-travailler">
+<h2>Installer et configurer de quoi bien travailler</h2>
+<div class="section" id="pour-9-04">
+<h3>pour 9.04</h3>
+<div class="highlight"><pre>sudo apt-get install vim-python
+</pre></div>
+</div>
+<div class="section" id="pour-10-04">
+<h3>pour 10.04</h3>
+<div class="highlight"><pre>sudo apt-get install vim-nox
+</pre></div>
+<p>puis</p>
+<div class="highlight"><pre>vim ~/.vimrc <span class="o">[</span>/code<span class="o">]</span>
+</pre></div>
+<p>et coller le texte suivant:</p>
+<div class="highlight"><pre>syntax on
+<span class="nb">set </span>number
+<span class="nb">set </span><span class="nv">background</span><span class="o">=</span>dark
+<span class="nb">set </span><span class="nv">tabstop</span><span class="o">=</span>2
+<span class="nb">set </span><span class="nv">shiftwidth</span><span class="o">=</span>2
+<span class="nb">set </span><span class="nv">softtabstop</span><span class="o">=</span>2
+<span class="nb">set </span>expandtab
+<span class="nb">set </span>autoindent
+autocmd BufRead *.py <span class="nb">set </span>smartindent <span class="nv">cinwords</span><span class="o">=</span><span class="k">if</span>,elif,else,for,while,try,except,finally,def,class
+autocmd BufWritePre *.py normal m<span class="sb">`</span>:%s/<span class="se">\s\+</span><span class="nv">$/</span>/e <span class="sb">``</span>
+map &lt;F12&gt; :set number!&lt;CR&gt;
+map &lt;F10&gt; :set paste!&lt;CR&gt;
+</pre></div>
+<p>enfin :</p>
+<div class="highlight"><pre>vim ~/.bashrc
+</pre></div>
+<p>et vers la fin du fichier, décommenter les 3 lignes suivantes:
+<strong>mise à jour:</strong> cette étape n'est plus nécessaire en 10.04</p>
+<div class="highlight"><pre><span class="nb">alias </span><span class="nv">ll</span><span class="o">=</span><span class="s1">&#39;ls -l&#39;</span>
+<span class="nb">alias </span><span class="nv">la</span><span class="o">=</span><span class="s1">&#39;ls -A&#39;</span>
+<span class="nb">alias </span><span class="nv">l</span><span class="o">=</span><span class="s1">&#39;ls -CF&#39;</span>
+</pre></div>
+</div>
+<div class="section" id="l-heure-et-ntp">
+<h3>L'heure et ntp</h3>
+<p>Dans mon système livré par gandi, l'heure est par défaut en heure UTC,
+si on veut la mettre à l'heure locale (Paris, France pour moi):</p>
+<div class="highlight"><pre>sudo dpkg-reconfigure tzdata
+</pre></div>
+<p>et choisir : Europe,
+puis Paris</p>
+<p>Pour NTP : [édit: Comme le remarque justement Daniel dans les
+commentaires, paramétrer ntp pour un serveur virtuel n'est
+vraisemblablement pas nécessaire car il va hériter de la date de son
+hôte. Je laisse ici l'info au cas où votre serveur n'est pas un
+hébergement gandi]</p>
+<div class="highlight"><pre>sudo vim /etc/cron.daily/ntpdate
+</pre></div>
+<p>et coller les commandes suivantes:</p>
+<div class="highlight"><pre><span class="c">#!/bin/sh</span>
+<span class="c">#On lance une synchro ntp</span>
+ntpdate fr.pool.ntp.org
+</pre></div>
+<p>enfin</p>
+<div class="highlight"><pre>sudo chmod a+x /etc/cron.daily/ntpdate
+</pre></div>
+<p>Ainsi notre serveur resynchronisera son horloge tous les jours automatiquement.</p>
+</div>
+</div>
+<div class="section" id="securite">
+<h2>Sécurité</h2>
+<div class="section" id="ssh-autoriser-uniquement-certains-users-en-ssh">
+<h3>ssh : autoriser uniquement certains users en ssh</h3>
+<p>ici, on va limiter le ssh uniquement pour notre user : testuser</p>
+<div class="highlight"><pre>sudo vim /etc/ssh/sshd<span class="se">\_</span>config
+</pre></div>
+<p>Bien vérifier que dans la zone 'Authentication' on a bien:</p>
+<div class="highlight"><pre>PermitRootLogin without-password
+</pre></div>
+<p>sinon modifier le paramètre.
+ensuite, en bas du fichier, ajouter:</p>
+<div class="highlight"><pre><span class="c"># Allow only a certain list of users</span>
+AllowUsers testuser
+</pre></div>
+<p><strong>Attention, il faut
+être vigilant en insérant cette ligne : une erreur dans le nom du user
+interdirait toute connexion ultérieure en ssh et bloquerait l'accès au
+serveur. Il est conseillé de garder sa session actuelle ouverte et de
+tester une nouvelle connexion supplémentaire pour bien vérifier qu'on
+puisse encore se connecter.</strong></p>
+<p>On recharge la config ssh</p>
+<div class="highlight"><pre>sudo /etc/init.d/ssh reload
+</pre></div>
+</div>
+<div class="section" id="fail2ban">
+<h3>Fail2ban</h3>
+<p>Fail2ban analyse les logs (ssh notament) et banni les IP qui attaque en
+force brute sur ssh via des configurations automatiques dans iptables.</p>
+<div class="highlight"><pre>sudo apt-get install fail2ban
+</pre></div>
+<p>modification des paramètres de fail2ban:</p>
+<div class="highlight"><pre>sudo vim /etc/fail2ban/jail.conf
+</pre></div>
+<p>pour ma part, j'ai juste changé deux
+paramètres : le bantime et le nombre d'essais :</p>
+<div class="highlight"><pre><span class="nv">bantime</span> <span class="o">=</span> 1800
+<span class="nv">maxretry</span> <span class="o">=</span> 3
+</pre></div>
+<div class="highlight"><pre>sudo /etc/init.d/fail2ban restart
+</pre></div>
+</div>
+<div class="section" id="iptables">
+<h3>IPtables</h3>
+<p>Iptable a été installé avec fail2ban, on va maintenant le configurer
+pour nos applications Pour cela, on va créer un fichier de commande qui
+se lancera au boot du serveur et que l'on peut relancer à volonté pour
+reconfigurer le firewall.</p>
+<div class="highlight"><pre>sudo vim /etc/init.d/server<span class="se">\_</span>iptables
+</pre></div>
+<p>et coller les commandes suivantes :</p>
+<div class="highlight"><pre><span class="c">#!/bin/bash</span>
+<span class="c"># reset iptables</span>
+iptables -F
+
+<span class="c"># Autorise les connections sortantes et sur l&#39;interface &quot;loopback&quot;</span>
+iptables -P OUTPUT ACCEPT
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -d 127.0.0.0/8 -i ! lo -j DROP
+
+<span class="c"># Autorise les connections deja etablies</span>
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+<span class="c"># Autorise HTTP, SSH, ICMP-ping</span>
+iptables -A INPUT -p tcp -i eth0 --dport ssh -j ACCEPT
+iptables -A INPUT -p tcp -i eth0 --dport 80 -j ACCEPT
+iptables -A INPUT -p icmp -i eth0 -j ACCEPT
+
+<span class="c">#  Refuse a priori ce qui vient de l&#39;exterieur</span>
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+</pre></div>
+<p>Ensuite on le rend executable et on l'installe au boot:</p>
+<div class="highlight"><pre>sudo chmod +x /etc/init.d/server_iptables
+sudo update-rc.d server_iptables defaults
+</pre></div>
+</div>
+<div class="section" id="securiser-le-kernel">
+<h3>Sécuriser le kernel</h3>
+<p>ça doit être lié à Xen, mais le kernel de gandi est assez ancien (à la
+date de cet article c'est un 2.6.18, alors que le kernel en cours est un
+2.6.28 On va modifier quelques paramètres du kernel pour le rendre plus
+solide aux attaques Ici, il faut se mettre directement en root pour que
+ces commandes passent:</p>
+<div class="highlight"><pre>sudo su
+</pre></div>
+<div class="section" id="se-proteger-contre-les-smurf-attack">
+<h4>Se protéger contre les Smurf Attack:</h4>
+<p>celui ci est déjà bon dans l'install que j'ai testé:</p>
+<div class="highlight"><pre><span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+</pre></div>
+</div>
+<div class="section" id="eviter-le-source-routing">
+<h4>Eviter le source routing:</h4>
+<p>celui ci est déjà bon dans l'install que j'ai testé:</p>
+<div class="highlight"><pre><span class="nb">echo</span> <span class="s2">&quot;0&quot;</span> &gt; /proc/sys/net/ipv4/conf/all/accept_source_route
+</pre></div>
+</div>
+<div class="section" id="se-proteger-des-attaques-de-type-syn-flood">
+<h4>Se protéger des attaques de type Syn Flood:</h4>
+<p>celui ci est déjà bon dans l'install que j'ai testé: [</p>
+<div class="highlight"><pre><span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/net/ipv4/tcp_syncookies
+<span class="nb">echo</span> <span class="s2">&quot;1024&quot;</span> &gt; /proc/sys/net/ipv4/tcp_max_syn_backlog
+<span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/net/ipv4/conf/all/rp_filter
+</pre></div>
+</div>
+<div class="section" id="desactiver-lautorisation-des-redirections-icmp">
+<h4>Désactiver l’autorisation des redirections ICMP:</h4>
+<div class="highlight"><pre><span class="nb">echo</span> <span class="s2">&quot;0&quot;</span> &gt; /proc/sys/net/ipv4/conf/all/accept_redirects
+<span class="nb">echo</span> <span class="s2">&quot;0&quot;</span> &gt; /proc/sys/net/ipv4/conf/all/secure_redirects
+</pre></div>
+</div>
+<div class="section" id="eviter-le-log-des-paquets-icmp-errone">
+<h4>Eviter le log des paquets icmp erroné:</h4>
+<p>celui ci est déjà bon dans l'install que j'ai testé:</p>
+<div class="highlight"><pre><span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+</pre></div>
+</div>
+<div class="section" id="active-le-logging-des-packets-aux-adresses-sources-falficiees-ou-non-routables">
+<h4>Active le logging des packets aux adresses sources falficiées ou non routables:</h4>
+<div class="highlight"><pre><span class="nb">echo</span> <span class="s2">&quot;1&quot;</span> &gt; /proc/sys/net/ipv4/conf/all/log_martians
+</pre></div>
+<p>on quitte le user root</p>
+<div class="highlight"><pre><span class="nb">exit</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="installation-lighttpd-et-php">
+<h2>Installation Lighttpd et php</h2>
+<div class="highlight"><pre>sudo apt-get install lighttpd
+sudo apt-get install php5-cgi
+sudo apt-get install php5-mysql
+sudo lighty-enable-mod cgi
+sudo /etc/init.d/lighttpd force-reload
+</pre></div>
+<p>edit le fichier de conf de lighttpd et ajouter le mod fastcgi:</p>
+<div class="highlight"><pre>sudo vim /etc/lighttpd/lighttpd.conf
+</pre></div>
+<p>les modules activés sont les suivants (j'ai mis mod_rewrite et mod_redirect en plus, car cela sert
+toujours finalement)</p>
+<div class="highlight"><pre>server.modules <span class="o">=</span> <span class="o">(</span>
+            <span class="s2">&quot;mod_access&quot;</span>,
+            <span class="s2">&quot;mod_alias&quot;</span>,
+            <span class="s2">&quot;mod_accesslog&quot;</span>,
+            <span class="s2">&quot;mod_compress&quot;</span>,
+            <span class="s2">&quot;mod_fastcgi&quot;</span>,
+            <span class="s2">&quot;mod_rewrite&quot;</span>,
+            <span class="s2">&quot;mod_redirect&quot;</span>,
+<span class="c">#           &quot;mod_evhost&quot;,</span>
+<span class="c">#           &quot;mod_usertrack&quot;,</span>
+<span class="c">#           &quot;mod_rrdtool&quot;,</span>
+<span class="c">#           &quot;mod_webdav&quot;,</span>
+<span class="c">#           &quot;mod_expire&quot;,</span>
+<span class="c">#           &quot;mod_flv_streaming&quot;,</span>
+<span class="c">#           &quot;mod_evasive&quot;</span>
+<span class="o">)</span>
+</pre></div>
+<p>puis aller chercher
+dans le fichier la variable : server.dir-listing et la passer à disable:</p>
+<div class="highlight"><pre>server.dir-listing <span class="o">=</span> <span class="s2">&quot;disable&quot;</span>
+</pre></div>
+</div>
+<div class="section" id="installation-mysql">
+<h2>Installation Mysql</h2>
+<div class="highlight"><pre>apt-get install mysql-server-5.0
+</pre></div>
+<p>Quand il le
+demande, entrer un mot de passe root pour mysql (choisir un vrai mot de
+passe bien sécurisé) On va 'forcer' l'utf8 partout :</p>
+<div class="highlight"><pre>sudo vim /etc/mysql/conf.d/caractersencoding.cnf
+</pre></div>
+<p>et coller la
+configuration suivante:</p>
+<div class="highlight"><pre><span class="o">[</span>mysqld<span class="o">]</span>
+  <span class="c">#Set the default character set.</span>
+  default-character-set<span class="o">=</span>utf8
+  <span class="c">#Set the default collation.</span>
+  default-collation<span class="o">=</span>utf8_general_ci
+  <span class="c">#</span>
+  character-set-server<span class="o">=</span>utf8
+  skip-character-set-client-handshake
+  init-connect<span class="o">=</span><span class="s1">&#39;SET NAMES utf8&#39;</span>
+</pre></div>
+<p>on redémarre pour vérifier que tout est bon</p>
+<div class="highlight"><pre>sudo /etc/init.d/mysql restart
+</pre></div>
+<p>Mysql est maintenant installé
+dans ses répertoires par défaut, et notamment les bases seront crées
+dans /var/lib/mysql</p>
+<p>[ceci est une spécificité liée à l'installation
+gandi, vous pouvez passer ce point si votre serveur est 'normal']</p>
+<p>/var/lib est dans le disque 'système' de gandi qui fait uniquement 3Go.
+En fonction de ce qu'on prévoi de faire avec son serveur mysql, il est
+peut-etre judicieux de le déplacer sur le disque de données:</p>
+<div class="highlight"><pre>sudo /etc/init.d/mysql stop
+sudo mv /var/lib/mysql /srv/nomdurepertoiregandi/mysql
+sudo ln -s /srv/nomdurepertoiregandi/mysql /var/lib/mysql
+sudo /etc/init.d/mysql start
+</pre></div>
+</div>
+<div class="section" id="configuration-de-lighttpd-pour-un-site-de-test">
+<h2>Configuration de lighttpd pour un site de test</h2>
+<p>Afin de voir si tout va bien, on va créer un site de test</p>
+<div class="highlight"><pre>sudo mkdir /srv/nomdurepertoiregandi/www
+sudo chown www-data:www-data /srv/nomdurepertoiregandi/www
+sudo -u www-data mkdir /srv/nomdurepertoiregandi/www/sitetest1
+</pre></div>
+<p>ensuite on va configurer lighty:</p>
+<div class="highlight"><pre>sudo vim /etc/lighttpd/lighttpd.conf
+</pre></div>
+<p>ajouter sous la conf des modules:</p>
+<div class="highlight"><pre><span class="c"># Config pour sitetest</span>
+<span class="nv">$HTTP</span><span class="o">[</span><span class="s2">&quot;host&quot;</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;111.111.111.111&quot;</span> <span class="o">{</span>
+     server.document-root       <span class="o">=</span> <span class="s2">&quot;/srv/nomdurepertoiregandi/www/sitetest1/&quot;</span>
+
+     <span class="c"># FAST CGI POUR PHP</span>
+     fastcgi.server <span class="o">=</span> <span class="o">(</span> <span class="s2">&quot;.php&quot;</span> <span class="o">=</span>&gt; <span class="o">((</span>
+                         <span class="s2">&quot;bin-path&quot;</span> <span class="o">=</span>&gt; <span class="s2">&quot;/usr/bin/php-cgi&quot;</span>,
+                         <span class="s2">&quot;socket&quot;</span> <span class="o">=</span>&gt; <span class="s2">&quot;/tmp/php.socket&quot;</span>,
+                         <span class="s2">&quot;max-procs&quot;</span> <span class="o">=</span>&gt; 1,
+                         <span class="s2">&quot;bin-environment&quot;</span> <span class="o">=</span>&gt; <span class="o">(</span>
+                             <span class="s2">&quot;PHP_FCGI_CHILDREN&quot;</span> <span class="o">=</span>&gt; <span class="s2">&quot;4&quot;</span>,
+                             <span class="s2">&quot;PHP_FCGI_MAX_REQUESTS&quot;</span> <span class="o">=</span>&gt; <span class="s2">&quot;10000&quot;</span>
+                         <span class="o">)</span>,
+                         <span class="s2">&quot;bin-copy-environment&quot;</span> <span class="o">=</span>&gt; <span class="o">(</span>
+                             <span class="s2">&quot;PATH&quot;</span>, <span class="s2">&quot;SHELL&quot;</span>, <span class="s2">&quot;USER&quot;</span>
+                         <span class="o">)</span>,
+                         <span class="s2">&quot;broken-scriptfilename&quot;</span> <span class="o">=</span>&gt; <span class="s2">&quot;enable&quot;</span>
+     <span class="o">)))</span>
+<span class="o">}</span>
+</pre></div>
+<p>en remplaçant l'ip
+111.111.111.111 par l'ip ou le nom de domaine du site que vous voulez
+ajouter ensuite on redémarre lighty</p>
+<div class="highlight"><pre>sudo /etc/init.d/lighttpd restart
+</pre></div>
+<div class="section" id="mettre-un-fichier-de-test">
+<h3>mettre un fichier de test</h3>
+<div class="highlight"><pre>sudo -u www-data vim /srv/nomdurepertoiregandi/www/sitetest1/testinfo.php
+</pre></div>
+<p>et coller le code suivant:</p>
+<div class="highlight"><pre><span class="cp">&lt;?php</span> <span class="nb">phpinfo</span><span class="p">();</span> <span class="cp">?&gt;</span><span class="x"></span>
+</pre></div>
+<p>et voilà, le site est normalement accessible sur l'IP (ou le nom de
+domaine) que vous avez précisé dans la conf et l'url (en prenant mon
+exemple ci-dessus) : <a class="reference external" href="http://111.111.111.111/testinfo.php">http://111.111.111.111/testinfo.php</a> affiche toutes
+les infos de php.</p>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>On a maintenant un serveur ubuntu jaunty prêt à fonctionner, léger et
+sécurisé. Il prends peu de ressources, très peu de ram et pourra servir
+de base aux reste des tutos à venir.</p>
+</div>
+<p>There are <a href=".././installation-dun-serveur-web-securise-sous-ubuntu-9-04server.html#disqus_thread">comments</a>.</p>
+                </article>
+                
+                    
+<p class="paginator">
+    
+    Page 1 / 1
+    
+</p>
+
+                
+            </aside><!-- /#featured -->
+            
+        
+        
+        
+            </ol><!-- /#posts-list -->
+            
+            </section><!-- /#content -->
+        
+    
+
+
+        <section id="extras" class="body">
+        
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                        
+                            <li><a href="http://www.afpy.org/">afpy</a></li>
+                        
+                            <li><a href="http://www.april.org/">april</a></li>
+                        
+                            <li><a href="http://www.laquadrature.net/fr">lqdn</a></li>
+                        
+                        </ul>
+                </div><!-- /.blogroll -->
+        
+        
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://chiroux.org/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+                            
+
+                        
+                            <li><a href="https://twitter.com/ThomasChiroux">twitter</a></li>
+                        
+                            <li><a href="https://plus.google.com/113683015116617526200/">google+</a></li>
+                        
+                            <li><a href="https://github.com/ThomasChiroux">github</a></li>
+                        
+                        </ul>
+                </div><!-- /.social -->
+        
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'chirouxorg';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+
+</body>
+</html>

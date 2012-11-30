@@ -1,0 +1,1353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>chiroux.org</title><link href="http://chiroux.org/" rel="alternate"></link><link href="http://chiroux.org/feeds/all.atom.xml" rel="self"></link><id>http://chiroux.org/</id><updated>2012-11-30T11:56:58+01:00</updated><entry><title>blog re-(re-)^n-boot</title><link href="http://chiroux.org/blog-re-re-n-boot.html" rel="alternate"></link><updated>2012-11-30T11:56:58+01:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2012-11-30:blog-re-re-n-boot.html</id><summary type="html">&lt;p&gt;Allez encore un re-re boot du blog.
+A ce train, je vais faire plus de reboot que d'articles :-)
+Précédemment j'étais passé de ModX (php) à Wordpress (php) (j'ai oublié ce que j'utilisait avant ModX)&lt;/p&gt;
+&lt;p&gt;Maintenant, je simplifie tout: depuis que je m'autohéberge, je trouvais le site hyper lent, je ne sais pas si c'est du à la (petite) machine, a la config de mysql ou que sais-je.
+Donc je change radicalement et je passe en site statique !&lt;/p&gt;
+&lt;p&gt;Le tout grâce à un super outil, écrit en python (enfin je passe a python pour ce blog!) : &lt;a class="reference external" href="http://getpelican.com"&gt;Pelican&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Un autre gros avantage (pour moi en tout cas): on peut rédiger ses articles en &lt;a class="reference external" href="http://fr.wikipedia.org/wiki/ReStructuredText"&gt;ReST&lt;/a&gt;, format que j'utilise beaucoup &lt;a class="reference external" href="https://plus.google.com/u/0/113683015116617526200/posts/1LL8751K5uh"&gt;professionnellement&lt;/a&gt;
+et personnellement (notamment dans les documentations des projets de développement python).&lt;/p&gt;
+&lt;p&gt;Bon je ne suis pour l'instant pas foulé pour les thèmes &amp;amp; co: je prends celui par défaut, il est sobre et simple.&lt;/p&gt;
+</summary></entry><entry><title>Envoyer les infos des capteurs oregon sur sen.se</title><link href="http://chiroux.org/envoyer-les-infos-des-capteurs-oregon-sur-sense.html" rel="alternate"></link><updated>2011-08-12T17:18:00+02:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2011-08-12:envoyer-les-infos-des-capteurs-oregon-sur-sense.html</id><summary type="html">&lt;p&gt;&lt;img alt="thgr328n" src="media/images/thgr328n.png" /&gt;&lt;/p&gt;
+&lt;p&gt;Depuis quelques temps, je beta-teste &lt;a class="reference external" href="http://open.sen.se/"&gt;sen.se&lt;/a&gt;, un site à la &lt;a class="reference external" href="https://pachube.com/"&gt;pachube&lt;/a&gt; qui est
+une sorte de plate-forme pour l'internet des objets. L'objet de cet
+article n'est pas (encore) de découvrir et parcourir les différents
+fonctionnalités et utilisation de sen.se, mais de décrire comment j'ai
+fait pour envoyer les infos de mes capteurs oregon (température,
+humidité, etc..) vers la plate-forme.&lt;/p&gt;
+&lt;div class="section" id="recuperation-des-donnees-des-capteurs"&gt;
+&lt;h2&gt;Récupération des données des capteurs&lt;/h2&gt;
+&lt;p&gt;Les capteurs que j'utilise sont des sondes classiques, comme celle qu'on
+peut trouver &lt;a class="reference external" href="http://fr.oregonscientific.com/cat-Stations-M%C3%A9t%C3%A9o-sub-Sondes-and-Accessoires.html"&gt;ici&lt;/a&gt;. J'ai notamment quelques thgr328 comme celui de la
+photo. Je n'utilise pas de &amp;quot;centrale&amp;quot; oregon, mais à la place un
+équipement super pratique : le &lt;a class="reference external" href="http://www.rfxcom.com/receivers.htm"&gt;rfx-com&lt;/a&gt; qui est capable de recevoir et
+décoder tout un tas de capteurs fonctionnant en 433Mhz. Du coup, on
+récupère en LAN des trames venant des capteurs.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="uniformisation-et-decodage-des-trames-xpl"&gt;
+&lt;h2&gt;Uniformisation et décodage des trames : xpl&lt;/h2&gt;
+&lt;p&gt;Les trames venant du rfxcom sont 'brutes', directement au format de
+l'émétteur (oregon ici) et pas toujours très simple à lire, du coup on
+va les uniformiser dans un protocole simple et pratique : &lt;a class="reference external" href="http://en.wikipedia.org/wiki/XPL_Protocol"&gt;xpl&lt;/a&gt; Pour
+gérer le xpl et décoder les trames du rfxcom, j'utilise une librairie en
+perl (et oui, en perl... désolé, c'était la plus complète qui tourne sur
+linux, il y d'autres libs en développements très prometteuses en python,
+mais on verra plus tard :-)) pour l'instant : &lt;a class="reference external" href="https://github.com/beanz/xpl-perl/"&gt;xpl-perl&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installation-et-configuration-d-xpl-perl"&gt;
+&lt;h2&gt;Installation et configuration d'xpl-perl&lt;/h2&gt;
+&lt;p&gt;Ci-dessous rapidement le chemin à suivre pour installer xpl-perl et le
+rendre fonctionnel. Pour ce tuto, je part d'une débian squeeze vide, sur
+un &lt;a class="reference external" href="http://fr.wikipedia.org/wiki/SheevaPlug"&gt;sheeva-plug&lt;/a&gt; (arm)&lt;/p&gt;
+&lt;div class="section" id="installer-les-dependances-perl-necessaires"&gt;
+&lt;h3&gt;Installer les dépendances perl nécessaires&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;apt-get install libconfig-yaml-perl
+apt-get install libanyevent-perl
+apt-get install libdatetime-format-dateparse-perl
+apt-get install libsub-name-perl
+apt-get install librrds-perl
+apt-get install libio-all-perl
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installer-xpl-perl-et-ses-modules"&gt;
+&lt;h3&gt;Installer xpl-perl et ses modules&lt;/h3&gt;
+&lt;p&gt;Ici j'installe la version en cours de développement d'xpl-perl car elle
+intègre certains patchs qui permettent de décoder correctement tous mes
+capteurs, mais il est possible que son fonctionnement soit un peu
+aléatoire (perso je n'ai pas rencontré de problème) Le repository
+d'xpl-perl est dispo sur github&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git clone https://github.com/beanz/xpl-perl.git
+&lt;span class="nb"&gt;cd &lt;/span&gt;xpl-perl
+perl Makefile.PL
+make
+make &lt;span class="nb"&gt;test&lt;/span&gt;
+make install
+&lt;span class="nb"&gt;cd&lt;/span&gt;
+
+git clone git clone -b &lt;span class="s2"&gt;&amp;quot;build/master&amp;quot;&lt;/span&gt; https://github.com/beanz/device-rfxcom-perl.git
+&lt;span class="nb"&gt;cd &lt;/span&gt;device-rfxcom-perl/
+make
+make install
+&lt;span class="nb"&gt;cd&lt;/span&gt;
+
+git clone https://github.com/beanz/anyevent-mocktcpserver-perl.git
+&lt;span class="nb"&gt;cd &lt;/span&gt;anyevent-mocktcpserver-perl/
+perl Makefile.PL
+make
+make install
+&lt;span class="nb"&gt;cd&lt;/span&gt;
+
+git clone https://github.com/beanz/anyevent-rfxcom-perl.git
+&lt;span class="nb"&gt;cd &lt;/span&gt;anyevent-rfxcom-perl/
+perl Makefile.PL
+make
+make install
+&lt;span class="nb"&gt;cd&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="lancer-xpl-perl-mode-test"&gt;
+&lt;h3&gt;lancer xpl-perl (mode test)&lt;/h3&gt;
+&lt;p&gt;Pour que plusieurs modules xpl cohabitent sur une même machine, il est
+nécessaire de lancer un HUB-xpl qui va récupérer les messages UDP en
+broadcast sur le port 3865 et les redistribuer aux process internes, on
+lance donc en premier un hub xpl, puis on lance le premier module pour
+recevoir les infos du rfxcom:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;xpl-hub &amp;amp;
+/usr/bin/perl /usr/local/bin/xpl-rfxcom-rx --verbose 192.168.1.xx
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Attention de bien préciser l'ip de votre rfxcom et là le module
+fait son job et commence à décoder les trames rfxcom et les envoyer sur
+le réseau en xpl.&lt;/p&gt;
+&lt;p&gt;Pour vérifier que les trames sont bien transmise,
+xpl-perl dispose d'un logger que l'on peut lancer pour tracer les trames:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;/usr/bin/perl /usr/local/bin/xpl-logger -v
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;qui au bout de quelques secondes me trace des infos de capteur:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;192.168.1.78:49635 &lt;span class="o"&gt;[&lt;/span&gt;xpl-stat/sensor.basic: bnz-rfxcomrx.debian -&amp;gt; * bthr918n.b1/temp/25.8&lt;span class="o"&gt;]&lt;/span&gt;
+192.168.1.78:49635 &lt;span class="o"&gt;[&lt;/span&gt;xpl-stat/sensor.basic: bnz-rfxcomrx.debian -&amp;gt; * bthr918n.b1/humidity/43&lt;span class="o"&gt;]&lt;/span&gt;
+192.168.1.78:49635 &lt;span class="o"&gt;[&lt;/span&gt;xpl-stat/sensor.basic: bnz-rfxcomrx.debian -&amp;gt; * bthr918n.b1/pressure/856/hPa&lt;span class="o"&gt;]&lt;/span&gt;
+192.168.1.78:49635 &lt;span class="o"&gt;[&lt;/span&gt;xpl-stat/sensor.basic: bnz-rfxcomrx.debian -&amp;gt; * bthr918n.b1/battery/60/%&lt;span class="o"&gt;]&lt;/span&gt;
+192.168.1.78:49635 &lt;span class="o"&gt;[&lt;/span&gt;xpl-stat/sensor.basic: bnz-rfxcomrx.debian -&amp;gt; * thgr328n.1a/temp/26.6&lt;span class="o"&gt;]&lt;/span&gt;
+192.168.1.78:49635 &lt;span class="o"&gt;[&lt;/span&gt;xpl-stat/sensor.basic: bnz-rfxcomrx.debian -&amp;gt; * thgr328n.1a/humidity/47&lt;span class="o"&gt;]&lt;/span&gt;
+192.168.1.78:49635 &lt;span class="o"&gt;[&lt;/span&gt;xpl-stat/sensor.basic: bnz-rfxcomrx.debian -&amp;gt; * thgr328n.1a/battery/90/%&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;L'important ici, c'est le nom du capteur, sa mesure et la valeur. Ex pour la
+première ligne : bthr918n.b1/temp/25.8 correspond donc au capteur
+bthr918n.b1 qui nous envoie sa température qui est de 25,8°&lt;/p&gt;
+&lt;div class="section" id="bonus-rrd-et-rrd-graph"&gt;
+&lt;h4&gt;Bonus: RRD et RRD graph&lt;/h4&gt;
+&lt;p&gt;xpl perl vient aussi avec un module très pratique : xpl-rrd. Une fois
+lancé, il se comporte comme le xpl-logger : il va récupérer
+automatiquement les trames envoyées sur le réseau xpl et créer et
+alimenter des bases &lt;a class="reference external" href="http://www.mrtg.org/rrdtool/"&gt;RRD&lt;/a&gt;, pas besoin de config, il fait tout
+automatiquement. Il faut juste lui préciser un répertoire de destination
+et il va créer des bases pour chaque capteur et chaque type de mesure.
+ex:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;/usr/bin/perl -w /usr/local/bin/xpl-rrd -v /opt/maison/xpl-rrd/ &amp;amp;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Ensuite, il ne nous reste plus qu'à
+grapher, et là aussi xpl-perl fournis un petit outil qui va scanner les
+bases rrd et générer les graphiques et les pages html qui vont bien.
+Celui-ci, il faut le lancer en cron, par exemple toute les 10 minutes:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;crontab -e
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et placer:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;0,10,20,30,40,50 \* \* \* \* /usr/local/bin/xpl-rrd-graphs /opt/maison/xpl-rrd/ /opt/maison/xpl-rrd/graphs/
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;ainsi tous les 10 minutes, les graphs seront mis à jour. Yapuka intégrer ces pages dans
+un petit site web (sous lighty par exemple, &lt;a class="reference external" href="http://www.chiroux.com/installation-dun-serveur-web-securise-sous-ubuntu-9-04server/"&gt;voir un autre tuto pour
+ça&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image1" src="media/images/rrd-300x125.png" /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="sen-se"&gt;
+&lt;h3&gt;sen.se&lt;/h3&gt;
+&lt;p&gt;Maintenant que l'on a des infos de capteurs au sein de notre réseau, il
+reste à écrire un bout de soft qui récupère ces infos et les transmet à
+sen.se Bon au préalable, il va vous faloir un compte chez sen.se (comme
+c'est actuellement en beta, il faut demander à s'inscrire) et ensuite il
+va falloir créer autant de 'devices' que vous avez de capteurs et les
+flux au sein de ces devices.&lt;/p&gt;
+&lt;p&gt;Ex ici avec un de mes capteurs oregon:
+&lt;img alt="image2" src="media/images/sense1.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image3" src="media/images/sense2.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image4" src="media/images/sense3.png" /&gt;&lt;/p&gt;
+&lt;p&gt;On récupère donc des Feed_id, c'est ce qui
+va nous permettre d'associer chaque mesure : chaque mesure de chaque
+capteur sera associé à son propre feed ID. Ensuite il faut un programme
+qui fait tout ça, et là on est de retour en python: j'ai écrit un bout
+de programme qui va agir comme 'écouteur' du réseau xpl, récupérer les
+messages, les traduire au format sen.se et les envoyer à la plate-forme.&lt;/p&gt;
+&lt;p&gt;Je ne vais pas décrire ici tout le code, mais le source est &lt;a class="reference external" href="https://bitbucket.org/ThomasChiroux/py-xplsensor2net"&gt;disponible
+ici sur bitbucket&lt;/a&gt;
+Je tiens à remercier l'équipe &lt;a class="reference external" href="http://wiki.domogik.org/"&gt;domogik&lt;/a&gt; (j'y
+reviendrais certainement plus tard: c'est ce projet en python qui est
+très prometteur dont je parlais tout à l'heure), car j'ai récupéré du
+projet la classe de décodage des message xpl: XplMessage (pourquoi
+réécrire ce que d'autres ont déjà fait très bien ?).&lt;/p&gt;
+&lt;p&gt;Mais à ce stade je n'ai pas voulu faire un plugin de domogik de mon programme car domogik
+est un gros projet et je n'avais plus assez de place dans ma sheevaplug
+pour le faire tenir. Du coup j'ai préféré faire un petit module autonome
+pour l'instant. Il vous faudra donc récupérer le code source:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;hg clone https://bitbucket.org/ThomasChiroux/py-xplsensor2net
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et créer un fichier de config (en partant du devices.cfg.sample).&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;cd &lt;/span&gt;py-xplsensor2net
+cp devices.cfg.sample devices.cfg
+vim devices.cfg
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;dans ce fichier de config, pour chaque capteur oregon, on va
+associer chaque mesure à un feed_id. Ne pas oublier non plus de
+préciser sa clef d'API de sen.se dans la rubrique [GENERAL] ex d'un
+fichier de config:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;[&lt;/span&gt;GENERAL&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;api_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;PUT_YOUR_API_KEY_HERE
+
+&lt;span class="c"&gt;# below are the list of sensors in the form:&lt;/span&gt;
+&lt;span class="c"&gt;# [xplsensorname]&lt;/span&gt;
+&lt;span class="c"&gt;# name = whatever you choose&lt;/span&gt;
+&lt;span class="c"&gt;# parameter = feed_id&lt;/span&gt;
+&lt;span class="c"&gt;# parameter = feed_id&lt;/span&gt;
+&lt;span class="c"&gt;# ...&lt;/span&gt;
+
+&lt;span class="o"&gt;[&lt;/span&gt;thgr328n.ff&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;span class="nv"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;Living Room
+&lt;span class="nv"&gt;temp&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1234
+&lt;span class="nv"&gt;humidity&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1235
+&lt;span class="nv"&gt;battery&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1236
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;le capteur thgr328n.ff a
+donc 3 flux : 'temp', 'humidity' et 'battery' associés respectivement
+aux feed sen.se : 1234, 1235 et 1236 ensuite, lancez le programme:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;python xplsensor2net.py -i a.b.c.d &amp;amp;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;en remplaçant
+a.b.c.d par l'adresse IP de la machine sur laquelle vous lancez ce
+script. Et voilà c'est tout, les flux vont remonter tout seul vers
+sen.se et vous pourrez en faire ce que vous voulez, comme des widgets
+graphiques par exemple, mais aussi plein d'autres choses:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image5" src="media/images/sense_widgets-1024x566.png" /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</summary><category term="domotique"></category><category term="internet des objets"></category><category term="oregon"></category><category term="Programmation"></category><category term="Python"></category><category term="rfx-com"></category><category term="xpl"></category></entry><entry><title>Installation d'un couple de serveurs dhcp et dns redondants</title><link href="http://chiroux.org/installation-dun-couple-de-serveurs-dhcp-et-dns-redondants.html" rel="alternate"></link><updated>2009-09-30T00:15:00+02:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2009-09-30:installation-dun-couple-de-serveurs-dhcp-et-dns-redondants.html</id><summary type="html">&lt;img alt="Networked - CC - auteur: http://www.flickr.com/photos/superkimbo/1727117782/" src="media/images/network_servers.jpg" style="width: 500px; height: 333px;" /&gt;
+&lt;p&gt;Cette fois ci, on s'oriente plus du côté des petites entreprises qui ont
+rapidement besoin d'une gestion interne du réseau, simple, efficace et
+sécurisée. Le but de cet article est donc de montrer pas à pas comment
+monter deux serveurs dhcp+dns qui se backupent l'un l'autre de manière
+transparente. Ces deux serveurs seront les piliers du réseau naissant de
+la petite entreprise.&lt;/p&gt;
+&lt;p&gt;Pour l'installation de base, il suffit de suivre
+le &lt;a class="reference external" href="http://chiroux.org/installation-dun-serveur-web-securise-sous-ubuntu-9-04server/"&gt;tuto d'installation d'un serveur ubuntu&lt;/a&gt;, en s'arrêtant juste avant
+l'install de lighttpd qui n'est pas nécessaire ici (mais cela marche
+aussi avec bien sûr). Le tuto a l'air assez long mais il est
+relativement simple et rapide à mettre en oeuvre : en partant de deux
+serveurs vides, non installés, suivre les deux tutos d'install générique
+et celui ci de dhcp+dns, il suffit d'a peine 2H pour tout terminer et
+avoir ses serveurs fonctionnels.&lt;/p&gt;
+&lt;div class="section" id="introduction"&gt;
+&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Nous allons utiliser, classiquement, les serveurs bind et dhcpd 3&lt;/li&gt;
+&lt;li&gt;L'installation s'effectue sur deux machines, que l'on nommera
+respectivement ns1 et ns2&lt;/li&gt;
+&lt;li&gt;Le domaine installé est volontairement local et sera appelé :
+monentreprise.local&lt;/li&gt;
+&lt;li&gt;Le réseau local sera la classe C : 192.168.1.0/24&lt;/li&gt;
+&lt;li&gt;et les machines ns1 et ns2 auront respectivement les ips :
+192.168.1.10 et 192.168.1.11&lt;/li&gt;
+&lt;li&gt;la passerelle internet sera 192.168.1.1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;toutes ces valeurs sont des hypothèses et doivent être adaptées en
+fonction de votre config. A la fin de l'installation, nous devrions
+avoir deux serveurs, un 'maitre' dhcp et dns (ns1) et son 'esclave'
+(ns2). Les baux dhcp délivrés par le maitre étant mis à jour
+automatiquement dans le dns, le tout répliqué automatiquement sur
+l'esclave. L'esclave prenant le relais automatiquement si le maître ne
+marche plus.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installation-de-base-et-commune-aux-deux-serveurs"&gt;
+&lt;h2&gt;Installation de base et commune aux deux serveurs&lt;/h2&gt;
+&lt;p&gt;Comme son nom l'indique, il faut donc executer ces lignes de façon
+identique sur chacun des deux serveurs.&lt;/p&gt;
+&lt;div class="section" id="installation-des-paquets"&gt;
+&lt;h3&gt;Installation des paquets&lt;/h3&gt;
+&lt;div class="section" id="dhcp"&gt;
+&lt;h4&gt;dhcp&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install dhcp3-server
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;on stoppe le serveur tant qu'il n'est pas configuré pour éviter de mettre la
+grouille sur le réseau:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/dhcp3-server stop
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="dns"&gt;
+&lt;h4&gt;dns&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install bind9
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="preparation-du-firewall"&gt;
+&lt;h3&gt;Préparation du firewall&lt;/h3&gt;
+&lt;p&gt;Dans le firewall, il est nécessaire d'ouvrir explicitement quelques
+ports pour :&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;le dns&lt;/li&gt;
+&lt;li&gt;la mise a jour dynamique des dns suite aux baux délivrés par le dhcp&lt;/li&gt;
+&lt;li&gt;la synchronisation des dhcps entre eux&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Editer le fichier du firewall :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/init.d/server_iptables
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et ajouter les lignes suivantes :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# Autorise les requetes DNS&lt;/span&gt;
+iptables -A INPUT -s 192.168.1.0/24 -p tcp -i eth0 --dport 53 -j ACCEPT
+iptables -A INPUT -s 192.168.1.0/24 -p udp -i eth0 --dport 53 -j ACCEPT
+&lt;span class="c"&gt;# Autorise les MAJ DDNS&lt;/span&gt;
+iptables -A INPUT -s 192.168.1.0/24 -p tcp -i eth0 --dport 953 -j ACCEPT
+&lt;span class="c"&gt;# Autorise le failover dhcp&lt;/span&gt;
+iptables -A INPUT -s 192.168.1.0/24 -p tcp -i eth0 --dport 647 -j ACCEPT
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;On remarque ici qu'on
+autorise ces ports uniquement depuis les adresses de notre réseau local.
+On pourrait encore durir les règles en autorisant les maj ddns et les
+synchros dhcp uniquement depuis nos deux serveurs.&lt;/p&gt;
+&lt;p&gt;Relancer les règles
+du Firewall:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/server_iptables
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="preparation-du-dns-configuration-du-logging-en-mode-debug"&gt;
+&lt;h3&gt;préparation du dns : configuration du logging en mode debug&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/named.conf.debug.log
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;logging &lt;span class="o"&gt;{&lt;/span&gt;
+  category &lt;span class="s2"&gt;&amp;quot;default&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;general&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;database&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;security&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;config&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;resolver&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;warning&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;xfer-in&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;xfer-out&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;notify&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;client&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;unmatched&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;network&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;update&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;queries&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;warning&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;dispatch&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;dnssec&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+  category &lt;span class="s2"&gt;&amp;quot;lame-servers&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  channel &lt;span class="s2"&gt;&amp;quot;debug&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    file &lt;span class="s2"&gt;&amp;quot;/var/log/bind9/nameddbg&amp;quot;&lt;/span&gt; versions 2 size 50m;
+    print-time yes;
+    print-category yes;
+    print-severity yes;
+  &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  channel &lt;span class="s2"&gt;&amp;quot;warning&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    file &lt;span class="s2"&gt;&amp;quot;/var/log/bind9/nameddbg&amp;quot;&lt;/span&gt; versions 2 size 50m;
+    severity warning;
+    print-time yes;
+    print-category yes;
+    print-severity yes;
+  &lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Cette conf est très verbose, il sera peut-être nécessaire de la réduire
+une fois l'installation achevée et fonctionnelle. Par défault, le
+répertoire /var/log/bind9 n'existe pas et est bloqué par apparmor, il
+faut donc le créer et l'autoriser:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo mkdir /var/log/bind9
+sudo chown &lt;span class="nb"&gt;bind&lt;/span&gt;:bind /var/log/bind9
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Configurer apparmor pour autoriser l'écriture dans le repertoire du log:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/apparmor.d/usr.sbin.named
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et ajouter à la fin (dans la zone sur les logs):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;/var/log/bind9/&lt;span class="se"&gt;\*\*&lt;/span&gt; rw,
+/var/log/bind9/ rw,
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;redémarrer apparmor
+(on relancera bind à la fin de la config)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/apparmor restart
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="sur-le-maitre-ns1"&gt;
+&lt;h2&gt;sur le maître (ns1)&lt;/h2&gt;
+&lt;div class="section" id="travaux-preparatoire-generation-des-clefs-partagees"&gt;
+&lt;h3&gt;travaux préparatoire : génération des clefs partagées&lt;/h3&gt;
+&lt;p&gt;des clefs seront nécessaires pour la mise à jour du dns par le dhcp,
+ainsi que pour la configuration rndc (rndc est un outil de configuration
+pour bind, optionnel, mais bind aime bien qu'il soit là). On va donc
+aussi configurer rndc sur le maitre.&lt;/p&gt;
+&lt;div class="section" id="rndc"&gt;
+&lt;h4&gt;rndc&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; /etc/bind
+sudo dnssec-keygen -a hmac-md5 -b 256 -n HOST ns1
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;ce programme va générer deux fichier nommés
+Kns1.xxxxxxxx.key et Kns1.xxxxxxxx.private le fichier .key va devenir
+notre clef rndc:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo mv Kns1.xxxxxxxxx.key rndc.key
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;(remplacer les xxxxxxxx par le bon nom) ensuite afficher le
+contenu du fichier private:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo cat Kns1.xxxxxxxxx.private
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et copier le texte après 'Key:' ensuite
+créer le fichier de conf rndc:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/rndc.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et coller les éléments suivants:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;key rdnc-key &lt;span class="o"&gt;{&lt;/span&gt;
+  algorithm hmac-md5;
+  secret &lt;span class="s2"&gt;&amp;quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+
+options &lt;span class="o"&gt;{&lt;/span&gt;
+  // what host should rndc attempt to control by default
+  default-server 127.0.0.1;
+  // and what key should it use to communicate with named
+  default-key &lt;span class="s2"&gt;&amp;quot;rdnc-key&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+
+server 127.0.0.1 &lt;span class="o"&gt;{&lt;/span&gt;
+  // always use this key with this host
+  key &lt;span class="s2"&gt;&amp;quot;rdnc-key&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et remplacer les XXXXX du secret par ce qu'on
+a copié après 'Key:' du fichier Kns1.xxxxxxxxx.private on peut
+maintenant effacer le fichier .private:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo rm Kns1.xxxxxxxxx.private
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="clef-pour-mise-a-jour-venant-du-dhcp"&gt;
+&lt;h4&gt;clef pour mise à jour venant du dhcp&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; /etc/bind
+sudo dnssec-keygen -a hmac-md5 -b 128 -n USER dhcpupdate
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Dans le fichier .key genéré, copier la clef : La
+clef est la dernière chaine de caractère du fichier .key, par exemple
+ici:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+dhcpupdate. IN KEY 0 3 157 Zihefb3NqqepA/5RgzbicM==
+&lt;/pre&gt;
+&lt;p&gt;la clef est: Zihefb3NqqepA/5RgzbicM==&lt;/p&gt;
+&lt;p&gt;avec cette clef, on a généré des directives de
+configuration pour le dhcp et pour le dns, elles auront l'aspect suivant:&lt;/p&gt;
+&lt;p&gt;pour le dns:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;key dhcpupdate &lt;span class="o"&gt;{&lt;/span&gt;
+  algorithm hmac-md5;
+  secret &lt;span class="s2"&gt;&amp;quot;ICICOLLERLACLEFSECRETEGENEREE&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;pour le dhcp (pareil que pour le dns, mais sans les guillemets):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;key dhcpupdate &lt;span class="o"&gt;{&lt;/span&gt;
+  algorithm hmac-md5;
+  secret ICICOLLERLACLEFSECRETEGENEREE;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h3&gt;dhcp&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/dhcp3/dhcpd.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et mettre le fichier de conf suivant:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#&lt;/span&gt;
+&lt;span class="c"&gt;# Sample dhcpd.conf file&lt;/span&gt;
+&lt;span class="c"&gt;#&lt;/span&gt;
+
+&lt;span class="c"&gt;# ======== Mise a jour DDNS ========&lt;/span&gt;
+ddns-domainname &lt;span class="s2"&gt;&amp;quot;monentreprise.local&amp;quot;&lt;/span&gt;;
+ddns-rev-domainname &lt;span class="s2"&gt;&amp;quot;1.168.192.in-addr.arpa&amp;quot;&lt;/span&gt;;
+&lt;span class="c"&gt;#Mehode de mise a  jour du DNS&lt;/span&gt;
+ddns-update-style interim;
+&lt;span class="c"&gt;#Mise a  jour autorisee&lt;/span&gt;
+ddns-updates on;
+&lt;span class="c"&gt;#ici on force la maj par le dhcp et non par le client&lt;/span&gt;
+ignore client-updates;
+&lt;span class="c"&gt;#on force la maj des ipfixes&lt;/span&gt;
+update-static-leases on;
+&lt;span class="c"&gt;# Clef partagee dhcpd et bind9&lt;/span&gt;
+key dhcpupdate &lt;span class="o"&gt;{&lt;/span&gt;
+    algorithm hmac-md5;
+    secret ICICOLLERLACLEFSECRETEGENEREE;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+
+&lt;span class="c"&gt;# ======== Option Generales du dhcp ========&lt;/span&gt;
+
+&lt;span class="c"&gt;# Server name&lt;/span&gt;
+server-name &lt;span class="s2"&gt;&amp;quot;dhcp.monentreprise.local&amp;quot;&lt;/span&gt;;
+
+&lt;span class="c"&gt;# option definitions common to all supported networks...&lt;/span&gt;
+option domain-name &lt;span class="s2"&gt;&amp;quot;monentreprise.local&amp;quot;&lt;/span&gt;;
+option domain-name-servers 192.168.1.10, 192.168.1.11;
+
+default-lease-time 3600;
+max-lease-time 7200;
+
+&lt;span class="c"&gt;# If this DHCP server is the official DHCP server for the local&lt;/span&gt;
+&lt;span class="c"&gt;# network, the authoritative directive should be uncommented.&lt;/span&gt;
+authoritative;
+
+&lt;span class="c"&gt;# Use this to send dhcp log messages to a different log file (you also&lt;/span&gt;
+&lt;span class="c"&gt;# have to hack syslog.conf to complete the redirection).&lt;/span&gt;
+log-facility local7;
+
+&lt;span class="c"&gt;# No service will be given on this subnet, but declaring it helps the&lt;/span&gt;
+&lt;span class="c"&gt;# DHCP server to understand the network topology.&lt;/span&gt;
+subnet 192.168.1.0 netmask 255.255.255.0 &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c"&gt;#Zones&lt;/span&gt;
+zone 1.168.192.in-addr.arpa. &lt;span class="o"&gt;{&lt;/span&gt;
+  primary 127.0.0.1;
+  key dhcpupdate;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+zone linkcareservices.local. &lt;span class="o"&gt;{&lt;/span&gt;
+  primary 127.0.0.1;
+  key dhcpupdate;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c"&gt;# ======== Failover configuration ========&lt;/span&gt;
+failover peer &lt;span class="s2"&gt;&amp;quot;dhcp-failover&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  primary; &lt;span class="c"&gt;# declare this to be the primary server&lt;/span&gt;
+  address 192.168.1.10;
+  port 647;
+  peer address 192.168.1.11;
+  peer port 647;
+  max-response-delay 30;
+  max-unacked-updates 10;
+  load balance max seconds 3;
+  mclt 1800;
+  split 128;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c"&gt;# ======== Reseaux ========&lt;/span&gt;
+&lt;span class="c"&gt;## déclaration sous réseau 192.168.1.*&lt;/span&gt;
+subnet 192.168.1.0 netmask 255.255.255.0 &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="c"&gt;# Si vous voulez spécifier un domaine différent de celui par défaut :&lt;/span&gt;
+  &lt;span class="c"&gt;#option domain-name &amp;quot;mon_domaine.qqc&amp;quot;;&lt;/span&gt;
+  &lt;span class="c"&gt;## Adresse de diffusion&lt;/span&gt;
+  option broadcast-address 192.168.1.255;
+  &lt;span class="c"&gt;## routeur par défaut&lt;/span&gt;
+  option routers 192.168.1.1;
+        &lt;span class="c"&gt;## Plage d&amp;#39;attribution d&amp;#39;adresse&lt;/span&gt;
+        &lt;span class="c"&gt;## Ici on ouvre pour l&amp;#39;instant une &amp;#39;petite&amp;#39; plage entre .50 et .99, c&amp;#39;est un exemple, on peut mettre plus.&lt;/span&gt;
+  pool &lt;span class="o"&gt;{&lt;/span&gt;
+    failover peer &lt;span class="s2"&gt;&amp;quot;dhcp-failover&amp;quot;&lt;/span&gt;;
+    range 192.168.1.50 192.168.1.99;
+  &lt;span class="o"&gt;}&lt;/span&gt;
+  &lt;span class="c"&gt;# évalue si l&amp;#39;adresse est déjà attribuée&lt;/span&gt;
+  ping-check &lt;span class="o"&gt;=&lt;/span&gt; 1;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+host ns1 &lt;span class="o"&gt;{&lt;/span&gt;
+  hardware ethernet 00:00:00:00:00:00;
+  fixed-address 192.168.1.10;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+host ns2 &lt;span class="o"&gt;{&lt;/span&gt;
+  hardware ethernet 00:00:00:00:00:00;
+  fixed-address 192.168.1.11;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Pour que le fichier de configuration soit complet, il faudra
+remplacer les ICICOLLERLACLEFSECRETEGENEREE de la clef par la clef
+générée précedemment. Il y a également deux baux statiques dans le
+fichier de configuration pour nos serveurs ns1 et ns2, il faut remplacer
+les 00:00... des adresses MAC par les vraies adresses mac de vos
+machines.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id2"&gt;
+&lt;h3&gt;dns&lt;/h3&gt;
+&lt;div class="section" id="named-conf"&gt;
+&lt;h4&gt;named.conf&lt;/h4&gt;
+&lt;p&gt;ce fichier représente la configuration principale du dns, on va juste
+ajouter quelques directives en début de fichier:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/named.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et ajouter en début de fichier les
+éléments suivants:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;acl internals &lt;span class="o"&gt;{&lt;/span&gt; 127.0.0.0/8; 192.168.1.0/24; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+controls &lt;span class="o"&gt;{&lt;/span&gt;
+  inet 127.0.0.1 allow &lt;span class="o"&gt;{&lt;/span&gt; 127.0.0.1; localhost; &lt;span class="o"&gt;}&lt;/span&gt; keys &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;rdnc-key&amp;quot;&lt;/span&gt;; &lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+
+key rdnc-key &lt;span class="o"&gt;{&lt;/span&gt;
+  algorithm hmac-md5;
+  secret &lt;span class="s2"&gt;&amp;quot;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+
+key dhcpupdate &lt;span class="o"&gt;{&lt;/span&gt;
+  algorithm hmac-md5;
+  secret &lt;span class="s2"&gt;&amp;quot;ICICOLLERLACLEFSECRETEGENEREE&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;en remplaçant XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+par la clef rndc générée précedemment, et en remplaçant
+ICICOLLERLACLEFSECRETEGENEREE par la clef dhcpupdate générée plus haut.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="named-conf-options"&gt;
+&lt;h4&gt;named.conf.options&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/named.conf.options
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Comme on est en train de construire des serveurs pour un petit réseau interne,
+nous n'avons pas besoin que les dns résolvent tout internet, on va donc
+les configurer pour faire relais vers d'autre dns. L'avantage, c'est
+qu'on peut choisir ceux qu'on veut, et pas obligatoirement ceux de son
+ISP, même si au final il est quand même préférable d'en choisir des pas
+trop loin et si possible performants. Les DNS des ISP répondent souvent
+à ces problématiques. Vous pouvez aussi mettre simplement le dns de
+votre routeur/box en relais, nos dns internes servant au final à gérer
+les zones internes. Le fichier complet ressemble donc à ceci:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;options &lt;span class="o"&gt;{&lt;/span&gt;
+        directory &lt;span class="s2"&gt;&amp;quot;/var/lib/bind&amp;quot;&lt;/span&gt;;
+
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+
+        // If your ISP provided one or more IP addresses &lt;span class="k"&gt;for &lt;/span&gt;stable
+        // nameservers, you probably want to use them as forwarders.
+        // Uncomment the following block, and insert the addresses replacing
+        // the all-0&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;s placeholder.
+
+        // forwarders &lt;span class="o"&gt;{&lt;/span&gt;
+        //      0.0.0.0;
+        // &lt;span class="o"&gt;}&lt;/span&gt;;
+  forwarders &lt;span class="o"&gt;{&lt;/span&gt;
+    aa.bb.cc.dd;
+    ee.ff.gg.hh;
+    192.168.1.1;
+  &lt;span class="o"&gt;}&lt;/span&gt;;
+
+        auth-nxdomain no;    &lt;span class="c"&gt;# conform to RFC1035&lt;/span&gt;
+        listen-on-v6 &lt;span class="o"&gt;{&lt;/span&gt; none; &lt;span class="o"&gt;}&lt;/span&gt;;
+  listen-on &lt;span class="o"&gt;{&lt;/span&gt; 127.0.0.1; 192.168.1.10; 192.168.1.11; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // transférer les informations de zones aux DNS secondaires
+  allow-transfer &lt;span class="o"&gt;{&lt;/span&gt; 192.168.1.11; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // Accepter les requêtes pour le réseau interne uniquement
+  allow-query &lt;span class="o"&gt;{&lt;/span&gt; internals; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // Autoriser les requêtes récursives pour les hôtes locaux
+  allow-recursion &lt;span class="o"&gt;{&lt;/span&gt; internals; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // Ne pas rendre publique la version de BIND
+  version none;
+
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;dans la zone 'forwarders', vous pouvez donc remplacer les ips aa.bb.cc.dd et
+ee.ff.gg.hh par deux dns publics ou ceux de votre isp, ou vous pouvez
+enlever les lignes pour ne garder que le dns du routeur. Dans cette
+config, on autorise le transfert des infos de DNS vers notre futur
+secondaire. Il y a un autre élément important dans ce fichier de config:
+le répertoire par défaut de travail de bind qui doit être
+/var/lib/bind: sous ubuntu 9.04, par défaut, seul ce répertoire
+autorise bind à écrire dans le fichier et c'est nécessaire pour la maj
+ddns venant du dhcp.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="named-conf-local"&gt;
+&lt;h4&gt;named.conf.local&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/named.conf.local
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;insérer les zones et les reverses:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;///
+// Do any &lt;span class="nb"&gt;local &lt;/span&gt;configuration here
+//
+
+// Consider adding the 1918 zones here, &lt;span class="k"&gt;if &lt;/span&gt;they are not used in your
+// organization
+//include &lt;span class="s2"&gt;&amp;quot;/etc/bind/zones.rfc1918&amp;quot;&lt;/span&gt;;
+
+include &lt;span class="s2"&gt;&amp;quot;/etc/bind/named.conf.debug.log&amp;quot;&lt;/span&gt;;
+
+zone &lt;span class="s2"&gt;&amp;quot;monentreprise.local&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nb"&gt;type &lt;/span&gt;master;
+    notify yes;
+    allow-transfer &lt;span class="o"&gt;{&lt;/span&gt; 192.168.1.11; &lt;span class="o"&gt;}&lt;/span&gt; ;
+    file &lt;span class="s2"&gt;&amp;quot;monentreprise.local.hosts&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+
+zone &lt;span class="s2"&gt;&amp;quot;1.168.192.in-addr.arpa&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nb"&gt;type &lt;/span&gt;master;
+    notify yes;
+    allow-transfer &lt;span class="o"&gt;{&lt;/span&gt; 192.168.1.11; &lt;span class="o"&gt;}&lt;/span&gt; ;
+    file &lt;span class="s2"&gt;&amp;quot;1.168.192.in-addr.arpa.zone&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Cette config indique que ce dns est 'master' pour les deux zones et qu'il
+notifie et transfère les infos de zones vers le secondaire. De plus, il
+pointe sur une configuration de debug particulière qui est utile pour
+l'analyse des problème de la configuration et que l'on a paramétré
+précédemment.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="les-fichiers-de-zones"&gt;
+&lt;h4&gt;les fichiers de zones&lt;/h4&gt;
+&lt;p&gt;Il faut maintenant créer les fichier de la zone et du reverse. On va les
+créer dans /etc/bind, puis les lier dans /var/lib/bind/ où va vraiment
+aller les chercher bind, suite à notre config dans options.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/monentreprise.local.hosts
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et mettre les infos suivantes (c'est un exemple, mais qui est paramétré
+avec deux serveurs DNS pour préparer la conf/maitre-esclave)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;@      IN     SOA     ns1.monentreprise.local. email.monentreprise.com. &lt;span class="o"&gt;(&lt;/span&gt;
+            20092909003 ; serial
+            600 ; refresh after 10 minutes &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;for &lt;/span&gt;testing purpose&lt;span class="o"&gt;)&lt;/span&gt;
+            3600 ; retry after 1 hour
+            604800 ; expires after 1 week
+            86400 &lt;span class="o"&gt;)&lt;/span&gt; ; minimum TTL of 1 day
+@     IN     NS     ns1.monentreprise.local.
+@     IN     NS     ns2.monentreprise.local.
+gw          IN  A       192.168.1.1
+ns1         IN  A       192.168.1.10
+ns2         IN  A       192.168.1.11
+dhcp        IN  CNAME   ns1
+dhcp2         IN  CNAME   ns2
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Dans la premiere ligne, il faut indiquer un email après le serveur (ne pas
+oublier les '.' à la fin). bizarrement, l'email est de la forme
+email.domaine.suffixe. alors que cela veut dire &lt;a class="reference external" href="mailto:email&amp;#64;domaine.suffixe"&gt;email&amp;#64;domaine.suffixe&lt;/a&gt;
+faire de même avec le reverse:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/1.168.192.in-addr.arpa.zone
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;@       IN    SOA     ns1.monentreprise.local. email.monentreprise.com. &lt;span class="o"&gt;(&lt;/span&gt;
+            20090929002 ; serial
+            600 ; refresh after 10 minutes &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;for &lt;/span&gt;testing purpose&lt;span class="o"&gt;)&lt;/span&gt;
+            3600 ; retry after 1 hour
+            604800 ; expires after 1 week
+            86400 &lt;span class="o"&gt;)&lt;/span&gt; ; minimum TTL of 1 day
+@       IN     NS     ns1.monentreprise.local.
+@       IN     NS     ns2.monentreprise.local.
+1       IN     PTR    gw.monentreprise.local.
+10     IN     PTR    ns1.monentreprise.local.
+11     IN     PTR    ns2.monentreprise.local.
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Pour ces deux fichiers, si vous les
+modifiez à la main, il est important de faire évoluer le sérial à chaque
+modification. Sinon le DNS principal n'ira pas notifier le secondaire.
+maintenant on va faire en sorte que ces fichiers soient dispos dans
+/var/lib/bind et modifiables par bind:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo chown &lt;span class="nb"&gt;bind&lt;/span&gt;:bind /etc/bind/monentreprise.local.hosts
+sudo chown &lt;span class="nb"&gt;bind&lt;/span&gt;:bind /etc/bind/1.168.192.in-addr.arpa.zone
+sudo ln -s /etc/bind/monentreprise.local.hosts /var/lib/bind/monentreprise.local.hosts
+sudo ln -s /etc/bind/1.168.192.in-addr.arpa.zone /var/lib/bind/1.168.192.in-addr.arpa.zone
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="redemarrage"&gt;
+&lt;h3&gt;redémarrage&lt;/h3&gt;
+&lt;p&gt;on peut enfin redémarrer bind et démarrer le dhcp&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/bind9 restart
+sudo /etc/init.d/dhcp3-server start
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="warning"&gt;
+&lt;p class="first admonition-title"&gt;Warning&lt;/p&gt;
+&lt;p class="last"&gt;&lt;strong&gt;Attention :&lt;/strong&gt; il ne faut pas oublier de désactiver le ou les
+précédents serveurs dhcp sur le réseau (celui du routeur/de la box par
+exemple).&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="sur-l-esclave-ns2"&gt;
+&lt;h2&gt;sur l'esclave (ns2)&lt;/h2&gt;
+&lt;p&gt;La conf sur l'esclave est plus simple car il n'y a pas de système de maj
+ddns et les fichiers de zones dns sur récupérées automatiquement du
+maitre.&lt;/p&gt;
+&lt;div class="section" id="id3"&gt;
+&lt;h3&gt;dhcp&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/dhcp3/dhcpd.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et mettre la conf suivante:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#&lt;/span&gt;
+&lt;span class="c"&gt;# Sample dhcpd.conf file&lt;/span&gt;
+&lt;span class="c"&gt;#&lt;/span&gt;
+
+&lt;span class="c"&gt;# ======== Mise a jour DDNS ========&lt;/span&gt;
+ddns-update-style none;
+
+&lt;span class="c"&gt;# ======== Option Generales du dhcp ========&lt;/span&gt;
+&lt;span class="c"&gt;# Server name&lt;/span&gt;
+server-name &lt;span class="s2"&gt;&amp;quot;dhcp2.monentreprise.local&amp;quot;&lt;/span&gt;;
+
+&lt;span class="c"&gt;# option definitions common to all supported networks...&lt;/span&gt;
+option domain-name &lt;span class="s2"&gt;&amp;quot;monentreprise.local&amp;quot;&lt;/span&gt;;
+option domain-name-servers 192.168.1.10, 192.168.1.11;
+
+default-lease-time 3600;
+max-lease-time 7200;
+
+&lt;span class="c"&gt;# If this DHCP server is the official DHCP server for the local&lt;/span&gt;
+&lt;span class="c"&gt;# network, the authoritative directive should be uncommented.&lt;/span&gt;
+authoritative;
+
+&lt;span class="c"&gt;# Use this to send dhcp log messages to a different log file (you also&lt;/span&gt;
+&lt;span class="c"&gt;# have to hack syslog.conf to complete the redirection).&lt;/span&gt;
+log-facility local7;
+
+&lt;span class="c"&gt;# No service will be given on this subnet, but declaring it helps the&lt;/span&gt;
+&lt;span class="c"&gt;# DHCP server to understand the network topology.&lt;/span&gt;
+subnet 192.168.1.0 netmask 255.255.255.0 &lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c"&gt;# ======== Failover configuration ========&lt;/span&gt;
+failover peer &lt;span class="s2"&gt;&amp;quot;dhcp-failover&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  secondary; &lt;span class="c"&gt;# declare this to be the secondary server&lt;/span&gt;
+  address 192.168.1.11;
+  port 647;
+  peer address 192.168.1.10;
+  peer port 647;
+  max-response-delay 30;
+  max-unacked-updates 10;
+  load balance max seconds 3;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c"&gt;# ======== Reseaux ========&lt;/span&gt;
+&lt;span class="c"&gt;## déclaration sous réseau 192.168.1.*&lt;/span&gt;
+subnet 192.168.1.0 netmask 255.255.255.0 &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="c"&gt;# Si vous voulez spécifier un domaine différent de celui par défaut :&lt;/span&gt;
+  &lt;span class="c"&gt;#option domain-name &amp;quot;mon_domaine.qqc&amp;quot;;&lt;/span&gt;
+  &lt;span class="c"&gt;## Adresse de diffusion&lt;/span&gt;
+  option broadcast-address 192.168.1.255;
+  &lt;span class="c"&gt;## routeur par défaut&lt;/span&gt;
+  option routers 192.168.1.1;
+        &lt;span class="c"&gt;## Plage d&amp;#39;attribution d&amp;#39;adresse&lt;/span&gt;
+        &lt;span class="c"&gt;# Ici on ouvre pour l&amp;#39;instant une &amp;#39;petite&amp;#39; plage entre .50 et .99, c&amp;#39;est un exemple, on peut mettre plus.&lt;/span&gt;
+  pool &lt;span class="o"&gt;{&lt;/span&gt;
+    failover peer &lt;span class="s2"&gt;&amp;quot;dhcp-failover&amp;quot;&lt;/span&gt;;
+    range 192.168.1.50 192.168.1.99;
+  &lt;span class="o"&gt;}&lt;/span&gt;
+  &lt;span class="c"&gt;# évalue si l&amp;#39;adresse est déjà attribuée&lt;/span&gt;
+  ping-check &lt;span class="o"&gt;=&lt;/span&gt; 1;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+host ns1 &lt;span class="o"&gt;{&lt;/span&gt;
+  hardware ethernet 00:00:00:00:00:00;
+  fixed-address 192.168.1.10;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+host ns2 &lt;span class="o"&gt;{&lt;/span&gt;
+  hardware ethernet 00:00:00:00:00:00;
+  fixed-address 192.168.1.11;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Comme pour le dhcp maître, il y a deux baux statiques dans le
+fichier de configuration pour nos serveurs ns1 et ns2, il faut remplacer
+les 00:00… des adresses MAC par les vraies adresses mac de vos machines.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id4"&gt;
+&lt;h3&gt;dns&lt;/h3&gt;
+&lt;div class="section" id="id5"&gt;
+&lt;h4&gt;named.conf&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/named.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;ajouter juste, en début de fichier, l'acl internals:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;acl internals &lt;span class="o"&gt;{&lt;/span&gt; 127.0.0.0/8; 192.168.1.0/24; &lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id6"&gt;
+&lt;h4&gt;named.conf.options&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/named.conf.options
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Ce fichier est très proche de celui du maitre, sauf qu'il n'a plus la
+directive 'allow-transfer':&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;options &lt;span class="o"&gt;{&lt;/span&gt;
+        directory &lt;span class="s2"&gt;&amp;quot;/var/lib/bind&amp;quot;&lt;/span&gt;;
+
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+
+        // If your ISP provided one or more IP addresses &lt;span class="k"&gt;for &lt;/span&gt;stable
+        // nameservers, you probably want to use them as forwarders.
+        // Uncomment the following block, and insert the addresses replacing
+        // the all-0&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;s placeholder.
+
+        // forwarders &lt;span class="o"&gt;{&lt;/span&gt;
+        //      0.0.0.0;
+        // &lt;span class="o"&gt;}&lt;/span&gt;;
+  forwarders &lt;span class="o"&gt;{&lt;/span&gt;
+    aa.bb.cc.dd;
+    ee.ff.gg.hh;
+    192.168.1.1;
+  &lt;span class="o"&gt;}&lt;/span&gt;;
+
+        auth-nxdomain no;    &lt;span class="c"&gt;# conform to RFC1035&lt;/span&gt;
+        listen-on-v6 &lt;span class="o"&gt;{&lt;/span&gt; none; &lt;span class="o"&gt;}&lt;/span&gt;;
+  listen-on &lt;span class="o"&gt;{&lt;/span&gt; 127.0.0.1; 192.168.1.10; 192.168.1.11; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // transférer les informations de zones aux DNS secondaires
+  allow-transfer &lt;span class="o"&gt;{&lt;/span&gt; 192.168.1.11; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // Accepter les requêtes pour le réseau interne uniquement
+  allow-query &lt;span class="o"&gt;{&lt;/span&gt; internals; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // Autoriser les requêtes récursives pour les hôtes locaux
+  allow-recursion &lt;span class="o"&gt;{&lt;/span&gt; internals; &lt;span class="o"&gt;}&lt;/span&gt;;
+
+  // Ne pas rendre publique la version de BIND
+  version none;
+
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id7"&gt;
+&lt;h4&gt;named.conf.local&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/bind/named.conf.local
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Ici la conf est sensiblement différente, car on précise que les zones sont
+'esclaves':&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;//
+// Do any &lt;span class="nb"&gt;local &lt;/span&gt;configuration here
+//
+
+// Consider adding the 1918 zones here, &lt;span class="k"&gt;if &lt;/span&gt;they are not used in your
+// organization
+//include &lt;span class="s2"&gt;&amp;quot;/etc/bind/zones.rfc1918&amp;quot;&lt;/span&gt;;
+
+include &lt;span class="s2"&gt;&amp;quot;/etc/bind/named.conf.debug.log&amp;quot;&lt;/span&gt;;
+
+zone &lt;span class="s2"&gt;&amp;quot;linkcareservices.local&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nb"&gt;type &lt;/span&gt;slave;
+    masters &lt;span class="o"&gt;{&lt;/span&gt;192.168.1.10;&lt;span class="o"&gt;}&lt;/span&gt; ;
+    file &lt;span class="s2"&gt;&amp;quot;linkcareservices.local.hosts&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+
+zone &lt;span class="s2"&gt;&amp;quot;1.168.192.in-addr.arpa&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nb"&gt;type &lt;/span&gt;slave;
+    masters &lt;span class="o"&gt;{&lt;/span&gt;192.168.1.10;&lt;span class="o"&gt;}&lt;/span&gt; ;
+    file &lt;span class="s2"&gt;&amp;quot;1.168.192.in-addr.arpa.zone&amp;quot;&lt;/span&gt;;
+&lt;span class="o"&gt;}&lt;/span&gt;;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Il n'y a pas besoin de
+créer à la main les fichiers de zones : ils seront transférés
+automatiquement depuis le maitre.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id8"&gt;
+&lt;h3&gt;redémarrage&lt;/h3&gt;
+&lt;p&gt;on peut enfin redémarrer bind et démarrer le dhcp&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/bind9 restart
+sudo /etc/init.d/dhcp3-server start
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="debugging"&gt;
+&lt;h2&gt;Debugging&lt;/h2&gt;
+&lt;p&gt;Ce tuto est censé marcher directement, mais vous rencontrez des
+problèmes, voici quelques infos / trucs pour débugger les problèmes.
+J'essaierais de faire évoluer cette zone au fur et à mesure.&lt;/p&gt;
+&lt;div class="section" id="analyser-les-logs"&gt;
+&lt;h3&gt;analyser les logs&lt;/h3&gt;
+&lt;p&gt;les logs du dhcp sont dans /var/log/syslog les logs du dns sont dans
+/var/log/bind9/nameddbg Avant tout, il faut bien regarder ces logs à la
+recherce de problèmes&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="j-ai-beau-changer-mes-conf-dns-mon-probleme-persiste"&gt;
+&lt;h3&gt;j'ai beau changer mes conf dns, mon problème persiste&lt;/h3&gt;
+&lt;p&gt;Je me suis cassé la tête des heures durant sur des problèmes de MAJ ddns
+du dhcp vers le dns qui ne marchaient pas. Au final, le pb était qu'il y
+avait deux dns qui tournaient sur la machine. Ce pb a l'air plus courant
+qu'il n'y parait : ça m'est déjà arrivé deux fois (et deux fois je suis
+tombé dans le panneau). C'est peut-être un pb dans le restart du serveur
+dans init.d qui ne marche pas bien. Donc si vous avez un doute:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/bind9 stop
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;puis:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;ps -ef | grep named
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et si le ps montre un process named qui tourne encore, alors ne pas hésiter à le killer sauvagement:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo &lt;span class="nb"&gt;kill&lt;/span&gt; -9 XXXXXX
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;XXXXXX étant le numéro du process. puis:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/bind9 start
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</summary><category term="bind"></category><category term="configuration"></category><category term="dhcp"></category><category term="jaunty"></category><category term="linux"></category><category term="redondant"></category><category term="ubuntu"></category></entry><entry><title>Installation d'un serveur web sécurisé sous Ubuntu server (9.04 à 10.04)</title><link href="http://chiroux.org/installation-dun-serveur-web-securise-sous-ubuntu-9-04server.html" rel="alternate"></link><updated>2009-08-18T00:58:00+02:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2009-08-18:installation-dun-serveur-web-securise-sous-ubuntu-9-04server.html</id><summary type="html">&lt;img alt="ubuntu logo" src="media/images/ubuntu-logo.png" style="width: 105px; height: 100px;" /&gt;
+&lt;p&gt;Cet article est le premier d'une série sur l'admin
+système linux. On va donc commencer par les bases : installer un ubuntu
+server avec une sécurité correcte et on en profite pour installer un
+LLMP dessus (c'est LAMP mais avec Lighttpd à la place de apache :-))
+Pour ce tuto, j'ai choisi d'utiliser &lt;a class="reference external" href="https://www.gandi.net/hebergement/"&gt;un serveur virtuel de chez gandi&lt;/a&gt;
+: je profite d'une offre d'été qui propose un serveur gratuit pendant un
+mois. J'avais beta testé cette offre il y a un an et demi, mais les trop
+gros problèmes d'accès disque (lenteurs notamment) m'avaient incité à
+partir prendre un RPS chez OVH. Maintenant la situation change : l'offre
+de gandi est plus mûre (et l'archi disque a notamment changée : c'est
+maintenant du SAS directement sur les serveurs) et les &lt;a class="reference external" href="http://forum.ovh.com/showthread.php?t=49747"&gt;RPS d'ovh vont
+disparaitre&lt;/a&gt;. Je vais donc profiter de cette installation pour faire
+quelques benchs sur l'offre gandi et voir si je (re)bascule dessus ou
+pas ensuite. En attendant, voici de quoi installer le serveur&lt;/p&gt;
+&lt;div class="section" id="du-cote-de-gandi"&gt;
+&lt;h2&gt;Du côté de gandi&lt;/h2&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Administration / Hebergement : cliquer sur créer un serveur&lt;/li&gt;
+&lt;li&gt;Valider le nombre de parts&lt;/li&gt;
+&lt;li&gt;Choisir Installation expert et Ubuntu 9.04&lt;/li&gt;
+&lt;li&gt;Choisir un hostname, un nom d'utilisateur et un mot de passe [si
+possible, choisir un nom de user non standard, pour améliorer la
+sécurité]&lt;/li&gt;
+&lt;li&gt;Valider, et attendre le mail de confirmation avec &lt;a class="reference external" href="mailto:l'&amp;#64;IP"&gt;l'&amp;#64;IP&lt;/a&gt; du serveur&lt;/li&gt;
+&lt;li&gt;Ensuite, on peut se connecter en SSH sur le serveur avec le login et
+pass entré juste avant.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Ajouter un disque de données :&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;sur l'interfance gandi, onglet Gestion des disque, cliquer sur Créer
+un disque&lt;/li&gt;
+&lt;li&gt;choisir un nom pour le disque, la taille souhaitée et le filesystem&lt;/li&gt;
+&lt;li&gt;enfin, une fois le disque créé, cliquer sur le petit logo 'link'
+attacher le disque à un serveur&lt;/li&gt;
+&lt;li&gt;choisir le serveur et valider&lt;/li&gt;
+&lt;li&gt;le volume est dynamiquement ajouté au serveur dans
+/srv/nomduvolumechoisi&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class="section" id="organiser-les-users"&gt;
+&lt;h2&gt;Organiser les users&lt;/h2&gt;
+&lt;p&gt;Le login créé (ici: testuser) n'est pas par défaut dans la liste des
+sudoers, donc pas de sudo possible. Le mot de passe root par défaut est
+le même que celui du user testuser&lt;/p&gt;
+&lt;div class="section" id="on-va-donc-d-abord-autoriser-le-sudo-pour-testuser"&gt;
+&lt;h3&gt;On va donc d'abord autoriser le sudo pour testuser :&lt;/h3&gt;
+&lt;p&gt;en tant que root :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;visudo
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et ajouter à la fin du fichier:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# Members of the admin group may gain&lt;/span&gt;
+root privileges %admin &lt;span class="nv"&gt;ALL&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;ALL&lt;span class="o"&gt;)&lt;/span&gt; ALL
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="ensuite-on-va-ajouter-testuser-dans-le-groupe-admin"&gt;
+&lt;h3&gt;Ensuite on va ajouter testuser dans le groupe admin :&lt;/h3&gt;
+&lt;p&gt;toujours en tant que root :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;usermod -G admin testuser
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="enfin-on-change-le-mot-de-passe-root"&gt;
+&lt;h3&gt;Enfin on change le mot de passe root&lt;/h3&gt;
+&lt;p&gt;en tant que root:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;passwd
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et entrer un bon mot de passe bien sécurisé A partir de maintenant, sauf mention
+spécifique, le reste des commandes sera réalisée avec le user testuser&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="mise-a-jour-du-systeme"&gt;
+&lt;h2&gt;Mise à jour du système&lt;/h2&gt;
+&lt;p&gt;Afin de démarrer sur un système tout propre&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get update sudo apt-get upgrade
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installer-et-configurer-de-quoi-bien-travailler"&gt;
+&lt;h2&gt;Installer et configurer de quoi bien travailler&lt;/h2&gt;
+&lt;div class="section" id="pour-9-04"&gt;
+&lt;h3&gt;pour 9.04&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install vim-python
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="pour-10-04"&gt;
+&lt;h3&gt;pour 10.04&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install vim-nox
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;puis&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;vim ~/.vimrc &lt;span class="o"&gt;[&lt;/span&gt;/code&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et coller le texte suivant:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;syntax on
+&lt;span class="nb"&gt;set &lt;/span&gt;number
+&lt;span class="nb"&gt;set &lt;/span&gt;&lt;span class="nv"&gt;background&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;dark
+&lt;span class="nb"&gt;set &lt;/span&gt;&lt;span class="nv"&gt;tabstop&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;2
+&lt;span class="nb"&gt;set &lt;/span&gt;&lt;span class="nv"&gt;shiftwidth&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;2
+&lt;span class="nb"&gt;set &lt;/span&gt;&lt;span class="nv"&gt;softtabstop&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;2
+&lt;span class="nb"&gt;set &lt;/span&gt;expandtab
+&lt;span class="nb"&gt;set &lt;/span&gt;autoindent
+autocmd BufRead *.py &lt;span class="nb"&gt;set &lt;/span&gt;smartindent &lt;span class="nv"&gt;cinwords&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;,elif,else,for,while,try,except,finally,def,class
+autocmd BufWritePre *.py normal m&lt;span class="sb"&gt;`&lt;/span&gt;:%s/&lt;span class="se"&gt;\s\+&lt;/span&gt;&lt;span class="nv"&gt;$/&lt;/span&gt;/e &lt;span class="sb"&gt;``&lt;/span&gt;
+map &amp;lt;F12&amp;gt; :set number!&amp;lt;CR&amp;gt;
+map &amp;lt;F10&amp;gt; :set paste!&amp;lt;CR&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;enfin :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;vim ~/.bashrc
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et vers la fin du fichier, décommenter les 3 lignes suivantes:
+&lt;strong&gt;mise à jour:&lt;/strong&gt; cette étape n'est plus nécessaire en 10.04&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;alias &lt;/span&gt;&lt;span class="nv"&gt;ll&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ls -l&amp;#39;&lt;/span&gt;
+&lt;span class="nb"&gt;alias &lt;/span&gt;&lt;span class="nv"&gt;la&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ls -A&amp;#39;&lt;/span&gt;
+&lt;span class="nb"&gt;alias &lt;/span&gt;&lt;span class="nv"&gt;l&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ls -CF&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="l-heure-et-ntp"&gt;
+&lt;h3&gt;L'heure et ntp&lt;/h3&gt;
+&lt;p&gt;Dans mon système livré par gandi, l'heure est par défaut en heure UTC,
+si on veut la mettre à l'heure locale (Paris, France pour moi):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo dpkg-reconfigure tzdata
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et choisir : Europe,
+puis Paris&lt;/p&gt;
+&lt;p&gt;Pour NTP : [édit: Comme le remarque justement Daniel dans les
+commentaires, paramétrer ntp pour un serveur virtuel n'est
+vraisemblablement pas nécessaire car il va hériter de la date de son
+hôte. Je laisse ici l'info au cas où votre serveur n'est pas un
+hébergement gandi]&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/cron.daily/ntpdate
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et coller les commandes suivantes:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
+&lt;span class="c"&gt;#On lance une synchro ntp&lt;/span&gt;
+ntpdate fr.pool.ntp.org
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;enfin&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo chmod a+x /etc/cron.daily/ntpdate
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Ainsi notre serveur resynchronisera son horloge tous les jours automatiquement.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="securite"&gt;
+&lt;h2&gt;Sécurité&lt;/h2&gt;
+&lt;div class="section" id="ssh-autoriser-uniquement-certains-users-en-ssh"&gt;
+&lt;h3&gt;ssh : autoriser uniquement certains users en ssh&lt;/h3&gt;
+&lt;p&gt;ici, on va limiter le ssh uniquement pour notre user : testuser&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/ssh/sshd&lt;span class="se"&gt;\_&lt;/span&gt;config
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Bien vérifier que dans la zone 'Authentication' on a bien:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;PermitRootLogin without-password
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;sinon modifier le paramètre.
+ensuite, en bas du fichier, ajouter:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# Allow only a certain list of users&lt;/span&gt;
+AllowUsers testuser
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Attention, il faut
+être vigilant en insérant cette ligne : une erreur dans le nom du user
+interdirait toute connexion ultérieure en ssh et bloquerait l'accès au
+serveur. Il est conseillé de garder sa session actuelle ouverte et de
+tester une nouvelle connexion supplémentaire pour bien vérifier qu'on
+puisse encore se connecter.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;On recharge la config ssh&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/ssh reload
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="fail2ban"&gt;
+&lt;h3&gt;Fail2ban&lt;/h3&gt;
+&lt;p&gt;Fail2ban analyse les logs (ssh notament) et banni les IP qui attaque en
+force brute sur ssh via des configurations automatiques dans iptables.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install fail2ban
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;modification des paramètres de fail2ban:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/fail2ban/jail.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;pour ma part, j'ai juste changé deux
+paramètres : le bantime et le nombre d'essais :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;bantime&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 1800
+&lt;span class="nv"&gt;maxretry&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 3
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/fail2ban restart
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="iptables"&gt;
+&lt;h3&gt;IPtables&lt;/h3&gt;
+&lt;p&gt;Iptable a été installé avec fail2ban, on va maintenant le configurer
+pour nos applications Pour cela, on va créer un fichier de commande qui
+se lancera au boot du serveur et que l'on peut relancer à volonté pour
+reconfigurer le firewall.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/init.d/server&lt;span class="se"&gt;\_&lt;/span&gt;iptables
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et coller les commandes suivantes :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/bash&lt;/span&gt;
+&lt;span class="c"&gt;# reset iptables&lt;/span&gt;
+iptables -F
+
+&lt;span class="c"&gt;# Autorise les connections sortantes et sur l&amp;#39;interface &amp;quot;loopback&amp;quot;&lt;/span&gt;
+iptables -P OUTPUT ACCEPT
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -d 127.0.0.0/8 -i ! lo -j DROP
+
+&lt;span class="c"&gt;# Autorise les connections deja etablies&lt;/span&gt;
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+&lt;span class="c"&gt;# Autorise HTTP, SSH, ICMP-ping&lt;/span&gt;
+iptables -A INPUT -p tcp -i eth0 --dport ssh -j ACCEPT
+iptables -A INPUT -p tcp -i eth0 --dport 80 -j ACCEPT
+iptables -A INPUT -p icmp -i eth0 -j ACCEPT
+
+&lt;span class="c"&gt;#  Refuse a priori ce qui vient de l&amp;#39;exterieur&lt;/span&gt;
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Ensuite on le rend executable et on l'installe au boot:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo chmod +x /etc/init.d/server_iptables
+sudo update-rc.d server_iptables defaults
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="securiser-le-kernel"&gt;
+&lt;h3&gt;Sécuriser le kernel&lt;/h3&gt;
+&lt;p&gt;ça doit être lié à Xen, mais le kernel de gandi est assez ancien (à la
+date de cet article c'est un 2.6.18, alors que le kernel en cours est un
+2.6.28 On va modifier quelques paramètres du kernel pour le rendre plus
+solide aux attaques Ici, il faut se mettre directement en root pour que
+ces commandes passent:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo su
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="section" id="se-proteger-contre-les-smurf-attack"&gt;
+&lt;h4&gt;Se protéger contre les Smurf Attack:&lt;/h4&gt;
+&lt;p&gt;celui ci est déjà bon dans l'install que j'ai testé:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="eviter-le-source-routing"&gt;
+&lt;h4&gt;Eviter le source routing:&lt;/h4&gt;
+&lt;p&gt;celui ci est déjà bon dans l'install que j'ai testé:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;0&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/conf/all/accept_source_route
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="se-proteger-des-attaques-de-type-syn-flood"&gt;
+&lt;h4&gt;Se protéger des attaques de type Syn Flood:&lt;/h4&gt;
+&lt;p&gt;celui ci est déjà bon dans l'install que j'ai testé: [&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/tcp_syncookies
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1024&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/tcp_max_syn_backlog
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/conf/all/rp_filter
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="desactiver-lautorisation-des-redirections-icmp"&gt;
+&lt;h4&gt;Désactiver l’autorisation des redirections ICMP:&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;0&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/conf/all/accept_redirects
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;0&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/conf/all/secure_redirects
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="eviter-le-log-des-paquets-icmp-errone"&gt;
+&lt;h4&gt;Eviter le log des paquets icmp erroné:&lt;/h4&gt;
+&lt;p&gt;celui ci est déjà bon dans l'install que j'ai testé:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="active-le-logging-des-packets-aux-adresses-sources-falficiees-ou-non-routables"&gt;
+&lt;h4&gt;Active le logging des packets aux adresses sources falficiées ou non routables:&lt;/h4&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt; &amp;gt; /proc/sys/net/ipv4/conf/all/log_martians
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;on quitte le user root&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;exit&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installation-lighttpd-et-php"&gt;
+&lt;h2&gt;Installation Lighttpd et php&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo apt-get install lighttpd
+sudo apt-get install php5-cgi
+sudo apt-get install php5-mysql
+sudo lighty-enable-mod cgi
+sudo /etc/init.d/lighttpd force-reload
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;edit le fichier de conf de lighttpd et ajouter le mod fastcgi:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/lighttpd/lighttpd.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;les modules activés sont les suivants (j'ai mis mod_rewrite et mod_redirect en plus, car cela sert
+toujours finalement)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;server.modules &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;
+            &lt;span class="s2"&gt;&amp;quot;mod_access&amp;quot;&lt;/span&gt;,
+            &lt;span class="s2"&gt;&amp;quot;mod_alias&amp;quot;&lt;/span&gt;,
+            &lt;span class="s2"&gt;&amp;quot;mod_accesslog&amp;quot;&lt;/span&gt;,
+            &lt;span class="s2"&gt;&amp;quot;mod_compress&amp;quot;&lt;/span&gt;,
+            &lt;span class="s2"&gt;&amp;quot;mod_fastcgi&amp;quot;&lt;/span&gt;,
+            &lt;span class="s2"&gt;&amp;quot;mod_rewrite&amp;quot;&lt;/span&gt;,
+            &lt;span class="s2"&gt;&amp;quot;mod_redirect&amp;quot;&lt;/span&gt;,
+&lt;span class="c"&gt;#           &amp;quot;mod_evhost&amp;quot;,&lt;/span&gt;
+&lt;span class="c"&gt;#           &amp;quot;mod_usertrack&amp;quot;,&lt;/span&gt;
+&lt;span class="c"&gt;#           &amp;quot;mod_rrdtool&amp;quot;,&lt;/span&gt;
+&lt;span class="c"&gt;#           &amp;quot;mod_webdav&amp;quot;,&lt;/span&gt;
+&lt;span class="c"&gt;#           &amp;quot;mod_expire&amp;quot;,&lt;/span&gt;
+&lt;span class="c"&gt;#           &amp;quot;mod_flv_streaming&amp;quot;,&lt;/span&gt;
+&lt;span class="c"&gt;#           &amp;quot;mod_evasive&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;puis aller chercher
+dans le fichier la variable : server.dir-listing et la passer à disable:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;server.dir-listing &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;disable&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="installation-mysql"&gt;
+&lt;h2&gt;Installation Mysql&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;apt-get install mysql-server-5.0
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Quand il le
+demande, entrer un mot de passe root pour mysql (choisir un vrai mot de
+passe bien sécurisé) On va 'forcer' l'utf8 partout :&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/mysql/conf.d/caractersencoding.cnf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et coller la
+configuration suivante:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="o"&gt;[&lt;/span&gt;mysqld&lt;span class="o"&gt;]&lt;/span&gt;
+  &lt;span class="c"&gt;#Set the default character set.&lt;/span&gt;
+  default-character-set&lt;span class="o"&gt;=&lt;/span&gt;utf8
+  &lt;span class="c"&gt;#Set the default collation.&lt;/span&gt;
+  default-collation&lt;span class="o"&gt;=&lt;/span&gt;utf8_general_ci
+  &lt;span class="c"&gt;#&lt;/span&gt;
+  character-set-server&lt;span class="o"&gt;=&lt;/span&gt;utf8
+  skip-character-set-client-handshake
+  init-connect&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;SET NAMES utf8&amp;#39;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;on redémarre pour vérifier que tout est bon&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/mysql restart
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Mysql est maintenant installé
+dans ses répertoires par défaut, et notamment les bases seront crées
+dans /var/lib/mysql&lt;/p&gt;
+&lt;p&gt;[ceci est une spécificité liée à l'installation
+gandi, vous pouvez passer ce point si votre serveur est 'normal']&lt;/p&gt;
+&lt;p&gt;/var/lib est dans le disque 'système' de gandi qui fait uniquement 3Go.
+En fonction de ce qu'on prévoi de faire avec son serveur mysql, il est
+peut-etre judicieux de le déplacer sur le disque de données:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/mysql stop
+sudo mv /var/lib/mysql /srv/nomdurepertoiregandi/mysql
+sudo ln -s /srv/nomdurepertoiregandi/mysql /var/lib/mysql
+sudo /etc/init.d/mysql start
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="configuration-de-lighttpd-pour-un-site-de-test"&gt;
+&lt;h2&gt;Configuration de lighttpd pour un site de test&lt;/h2&gt;
+&lt;p&gt;Afin de voir si tout va bien, on va créer un site de test&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo mkdir /srv/nomdurepertoiregandi/www
+sudo chown www-data:www-data /srv/nomdurepertoiregandi/www
+sudo -u www-data mkdir /srv/nomdurepertoiregandi/www/sitetest1
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;ensuite on va configurer lighty:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo vim /etc/lighttpd/lighttpd.conf
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;ajouter sous la conf des modules:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;# Config pour sitetest&lt;/span&gt;
+&lt;span class="nv"&gt;$HTTP&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;host&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;111.111.111.111&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+     server.document-root       &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;/srv/nomdurepertoiregandi/www/sitetest1/&amp;quot;&lt;/span&gt;
+
+     &lt;span class="c"&gt;# FAST CGI POUR PHP&lt;/span&gt;
+     fastcgi.server &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;.php&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="o"&gt;((&lt;/span&gt;
+                         &lt;span class="s2"&gt;&amp;quot;bin-path&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="s2"&gt;&amp;quot;/usr/bin/php-cgi&amp;quot;&lt;/span&gt;,
+                         &lt;span class="s2"&gt;&amp;quot;socket&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="s2"&gt;&amp;quot;/tmp/php.socket&amp;quot;&lt;/span&gt;,
+                         &lt;span class="s2"&gt;&amp;quot;max-procs&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; 1,
+                         &lt;span class="s2"&gt;&amp;quot;bin-environment&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="o"&gt;(&lt;/span&gt;
+                             &lt;span class="s2"&gt;&amp;quot;PHP_FCGI_CHILDREN&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="s2"&gt;&amp;quot;4&amp;quot;&lt;/span&gt;,
+                             &lt;span class="s2"&gt;&amp;quot;PHP_FCGI_MAX_REQUESTS&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="s2"&gt;&amp;quot;10000&amp;quot;&lt;/span&gt;
+                         &lt;span class="o"&gt;)&lt;/span&gt;,
+                         &lt;span class="s2"&gt;&amp;quot;bin-copy-environment&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="o"&gt;(&lt;/span&gt;
+                             &lt;span class="s2"&gt;&amp;quot;PATH&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;SHELL&amp;quot;&lt;/span&gt;, &lt;span class="s2"&gt;&amp;quot;USER&amp;quot;&lt;/span&gt;
+                         &lt;span class="o"&gt;)&lt;/span&gt;,
+                         &lt;span class="s2"&gt;&amp;quot;broken-scriptfilename&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; &lt;span class="s2"&gt;&amp;quot;enable&amp;quot;&lt;/span&gt;
+     &lt;span class="o"&gt;)))&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;en remplaçant l'ip
+111.111.111.111 par l'ip ou le nom de domaine du site que vous voulez
+ajouter ensuite on redémarre lighty&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo /etc/init.d/lighttpd restart
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="section" id="mettre-un-fichier-de-test"&gt;
+&lt;h3&gt;mettre un fichier de test&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;sudo -u www-data vim /srv/nomdurepertoiregandi/www/sitetest1/testinfo.php
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et coller le code suivant:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;&amp;lt;?php&lt;/span&gt; &lt;span class="nb"&gt;phpinfo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="cp"&gt;?&amp;gt;&lt;/span&gt;&lt;span class="x"&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;et voilà, le site est normalement accessible sur l'IP (ou le nom de
+domaine) que vous avez précisé dans la conf et l'url (en prenant mon
+exemple ci-dessus) : &lt;a class="reference external" href="http://111.111.111.111/testinfo.php"&gt;http://111.111.111.111/testinfo.php&lt;/a&gt; affiche toutes
+les infos de php.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="conclusion"&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;On a maintenant un serveur ubuntu jaunty prêt à fonctionner, léger et
+sécurisé. Il prends peu de ressources, très peu de ram et pourra servir
+de base aux reste des tutos à venir.&lt;/p&gt;
+&lt;/div&gt;
+</summary><category term="9.04"></category><category term="configuration"></category><category term="installation"></category><category term="jaunty"></category><category term="lighttpd"></category><category term="linux"></category><category term="mysql"></category><category term="php"></category><category term="ubuntu"></category></entry></feed>
