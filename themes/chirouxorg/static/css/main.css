@@ -431,3 +431,35 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	
 	#add-comment input[type='submit'] {float: right; margin: 0 .5em;}
 	#add-comment * {margin-bottom: .5em;}
+
+div.admonition, div.hint, div.note, div.tip {
+    margin: 2em ;
+    padding: 1em;
+    -webkit-border-radius:6px;
+    border-radius:6px;
+    border:2px solid #dcdcdc;
+}
+
+div.attention, div.caution, div.danger, div.error,
+div.important, div.warning {
+    margin: 2em ;
+    padding: 1em;
+    -webkit-border-radius:6px;
+    border-radius:6px;
+    border:2px solid #dc0000;
+    background-color: #ffc9c1;
+}
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+    color: black;
+    font-weight: bold ;
+    font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title {
+    color: red ;
+    font-weight: bold ;
+    font-family: sans-serif }
