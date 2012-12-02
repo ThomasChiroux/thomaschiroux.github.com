@@ -35,3 +35,4 @@ SOCIAL = (('twitter', 'https://twitter.com/ThomasChiroux'),
 
 TWITTER_USERNAME = "ThomasChiroux"
 
+GOOGLE_ANALYTICS = "UA-36757276-1"
