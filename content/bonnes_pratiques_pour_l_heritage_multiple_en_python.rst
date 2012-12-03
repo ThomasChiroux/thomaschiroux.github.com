@@ -6,6 +6,13 @@ Bonnes pratiques (?) pour l'héritage multiple en python
 :lang: fr
 :slug: bonnes-pratiques-pour-lheritage-multiple-en-python
 
+.. figure:: media/images/superman_truck.jpg
+   :height: 222 px
+   :width: 341 px
+   :alt: Man of steel - CC - auteur: http://www.flickr.com/photos/thomashawk/2344049327/
+
+   Man of steel - CC - `auteur <http://www.flickr.com/photos/thomashawk/2344049327/>`_
+
 Gné ?
 -----
 

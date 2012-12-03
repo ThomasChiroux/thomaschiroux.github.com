@@ -5,10 +5,12 @@ Installation d'un couple de serveurs dhcp et dns redondants
 :tags: bind, configuration, dhcp, jaunty, linux, redondant, ubuntu
 :lang: fr
 
-.. image:: media/images/network_servers.jpg
-   :height: 333 px
-   :width: 500 px
+.. figure:: media/images/network_servers.jpg
+   :width: 250 px
+   :height: 166 px
    :alt: Networked - CC - auteur: http://www.flickr.com/photos/superkimbo/1727117782/
+
+   Networked - CC - `auteur <http://www.flickr.com/photos/superkimbo/1727117782/>`_
 
 Cette fois ci, on s'oriente plus du côté des petites entreprises qui ont
 rapidement besoin d'une gestion interne du réseau, simple, efficace et
@@ -907,5 +909,5 @@ XXXXXX étant le numéro du process. puis:
    sudo /etc/init.d/bind9 start
 
 
-.. _tuto d'installation d'un serveur ubuntu: http://chiroux.org/installation-dun-serveur-web-securise-sous-ubuntu-9-04server/
+.. _tuto d'installation d'un serveur ubuntu: http://chiroux.org/installation-dun-serveur-web-securise-sous-ubuntu-9-04server.html/
 
