@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Bonnes pratiques (?) pour l'héritage multiple en python</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="./theme/css/main.css" type="text/css" />
+        
+        <link href="http://chiroux.org/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="chiroux.org Atom Feed" />
+        
+        
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="./css/ie.css"/>
+                <script src="./js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="./css/ie6.css"/><![endif]-->
+
+</head>
+
+<body id="index" class="home">
+
+<a href="https://github.com/ThomasChiroux">
+
+<img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" />
+
+</a>
+
+        <header id="banner" class="body">
+                <h1><a href=".">chiroux.org </a></h1>
+                <nav><ul>
+                
+                
+                
+                
+                
+                    <li class="active"><a href="./category/python.html">python</a></li>
+                
+                    <li ><a href="./category/meta.html">meta</a></li>
+                
+                    <li ><a href="./category/adminsys.html">adminsys</a></li>
+                
+                </ul></nav>
+        </header><!-- /#banner -->
+        
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="bonnes-pratiques-pour-lheritage-multiple-en-python.html" rel="bookmark"
+           title="Permalink to Bonnes pratiques (?) pour l'héritage multiple en python">Bonnes pratiques (?) pour l'héritage multiple en python</a></h1>
+      
+<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="ThomasChiroux">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+
+    </header>
+
+    <div class="entry-content">
+      <footer class="post-info">
+        <abbr class="published" title="2012-12-03T00:56:00">
+                Mon 03 December 2012
+        </abbr>
+
+        
+        <address class="vcard author">
+                By <a class="url fn" href="./author/thomas-chiroux.html">Thomas Chiroux</a>
+        </address>
+        
+<p>In <a href="./category/python.html">python</a>. </p>
+<p>tags: <a href="./tag/python.html">python</a> <a href="./tag/programmation.html">programmation</a> <a href="./tag/objet.html">objet</a> </p>
+
+
+</footer><!-- /.post-info -->
+      <div class="section" id="gne">
+<h2>Gné ?</h2>
+<p>Récemment je me suis retrouvé confronté à un problème bizarre, incompréhensible
+au premier abord qui m'a fait réfléchir sur mes pratiques en python concernant
+la gestion des objets de l'héritage.
+Voici un état de ma réfléxion à ce sujet.</p>
+</div>
+<div class="section" id="heritage-simple-multiple-et-les-new-style-classes">
+<h2>Héritage, simple, multiple et les new-style-classes</h2>
+<p>Depuis python 2.2 a été introduit les new-style-classes, qui héritent toutes
+de object.</p>
+<p>Par exemple, avant, c'était:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Vehicule</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+<p>et maintant, on écrit (en python &lt;= 2.7.x):</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Vehicule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+<p>En python 2 donc, hériter de object est la marque de fabrique des new-style-classes.</p>
+<div class="tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">En python 3, on peut à nouveau écrire les classes de l'ancienne
+façon et ce seront quand même des new-styles-classes.</p>
+</div>
+<p>Je vous passe toutes les différences old-new, ce qui va nous intéresser ici
+c'est la gestion de l'héritage et donc l'appel aux méthodes des classes parentes.</p>
+<p>Prenons un exemple un peu plus complet: (les exemples ci-dessous fonctionnent en python2 et python3 (testé en 3.3))</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Vehicule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Classe decrivant un vehicule</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nombre_de_roues</span><span class="p">,</span> <span class="n">moteur</span><span class="p">,</span> <span class="n">couleur</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constucteur de vehicule</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :nombre_de_roues: (int); le nombre de roues du vehicule</span>
+<span class="sd">        :moteur: (boolean): est-ce qu&#39;il a un moteur ou non</span>
+<span class="sd">        :couleur: (str): la couleur du vehicule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Vehicule constructor&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_de_roues</span> <span class="o">=</span> <span class="n">nombre_de_roues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moteur</span> <span class="o">=</span> <span class="n">moteur</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">couleur</span> <span class="o">=</span> <span class="n">couleur</span>
+
+<span class="k">class</span> <span class="nc">Remorque</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un conteneur d&#39;une certaine capacite</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacite</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructeur de Remorque</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :capacite: (float): capactite de stockage en kg</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Remorque constructor&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacite</span> <span class="o">=</span> <span class="n">capacite</span>
+
+<span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="n">Remorque</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un camion quoi !</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">marque</span><span class="p">,</span> <span class="n">nombre_de_roues</span><span class="p">,</span> <span class="n">moteur</span><span class="p">,</span> <span class="n">couleur</span><span class="p">,</span> <span class="n">capacite</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constuctor du Camion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Camion constructor&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marque</span> <span class="o">=</span> <span class="n">marque</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_de_roues</span> <span class="o">=</span> <span class="n">nombre_de_roues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moteur</span> <span class="o">=</span> <span class="n">moteur</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">couleur</span> <span class="o">=</span> <span class="n">couleur</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacite</span> <span class="o">=</span> <span class="n">capacite</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># on constuit un camion bleu de 35T</span>
+    <span class="n">mon_beau_camion</span> <span class="o">=</span> <span class="n">Camion</span><span class="p">(</span><span class="s">&#39;Daf&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;bleu&#39;</span><span class="p">,</span> <span class="mi">35000</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Mon beau camion </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> a </span><span class="si">%s</span><span class="s"> roues et transporte </span><span class="si">%s</span><span class="s">T&quot;</span>
+          <span class="o">%</span> <span class="p">(</span><span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">marque</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">couleur</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">nombre_de_roues</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">capacite</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">))</span>
+</pre></div>
+<p>en l'exécutant, on obtient ceci:</p>
+<pre class="literal-block">
+Camion constructor
+Mon beau camion Daf bleu a 4 roues et transporte 35.0T
+</pre>
+<p>Cela fonctionne, mais on ne profite pas vraiment de l'héritage: on
+a redéfinit dans notre constructeur de Camion ce que faisait déjà
+les contructeurs de Vehicule et de Remorque.</p>
+<p>C'est là que <a class="reference external" href="http://docs.python.org/2/library/functions.html#super">super()</a>
+entre en jeu: grâce à super(), on va pouvoir appeler
+les constructeurs des classes parentes.</p>
+<p>On va changer le constructeur de Camion et essayer d'appeler super():</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="n">Remorque</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un camion quoi !</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">marque</span><span class="p">,</span> <span class="n">nombre_de_roues</span><span class="p">,</span> <span class="n">moteur</span><span class="p">,</span> <span class="n">couleur</span><span class="p">,</span> <span class="n">capacite</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constuctor du Camion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Camion constructor&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Camion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marque</span> <span class="o">=</span> <span class="n">marque</span>
+</pre></div>
+<p>Mais on est confronté à un premier problème: super() étant super-intelligent
+il va se débrouiller pour appeler les __init__ de chaque classe parente, le
+tout une seule fois (voir plus bas).
+Mais nos __init__ de Vehicule et Remorque n'ont pas les mêmes arguments en
+entrée, donc comment va faire super ?
+Testons avec l'exemple ci-dessus en ne mettant aucun argument:</p>
+<pre class="literal-block">
+Camion constructor
+Traceback (most recent call last):
+  File &quot;ex2.py&quot;, line 46, in &lt;module&gt;
+    mon_beau_camion = Camion(4, True, 'bleu', 35000)
+  File &quot;ex2.py&quot;, line 38, in __init__
+    super(Camion, self).__init__()
+TypeError: __init__() missing 3 required positional arguments: 'nombre_de_roues', 'moteur', and 'couleur'
+</pre>
+<p>bah ouai, logique, on a appelé un constructeur qui veut 3 args avec zéro arg.</p>
+<p>Alors comment faire ?
+Si j'appelle __init__ avec les 3 args requis, j'aurais un problème quand super() appellera
+le __init__ de Remorque qui n'attend qu'un seul argument.</p>
+<p>C'est ici qu'on défini donc une première bonne pratique: l'usage de **kwargs</p>
+</div>
+<div class="section" id="kwargs">
+<h2>**kwargs</h2>
+<p>**kwargs nous permet de passer ce qu'on veut comme arguments à une fonction
+(ou méthode), dans laquelle on ira piocher ce qui nous intesse:</p>
+<p>Voici une première implantation possible:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Vehicule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Classe decrivant un vehicule</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nombre_de_roues</span><span class="p">,</span> <span class="n">moteur</span><span class="p">,</span> <span class="n">couleur</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constucteur de vehicule</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :nombre_de_roues: (int); le nombre de roues du vehicule</span>
+<span class="sd">        :moteur: (boolean): est-ce qu&#39;il a un moteur ou non</span>
+<span class="sd">        :couleur: (str): la couleur du vehicule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Vehicule constructor&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_de_roues</span> <span class="o">=</span> <span class="n">nombre_de_roues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moteur</span> <span class="o">=</span> <span class="n">moteur</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">couleur</span> <span class="o">=</span> <span class="n">couleur</span>
+
+<span class="k">class</span> <span class="nc">Remorque</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un conteneur d&#39;une certaine capacite</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacite</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructeur de Remorque</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :capacite: (float): capactite de stockage en kg</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Remorque constructor&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacite</span> <span class="o">=</span> <span class="n">capacite</span>
+
+<span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="n">Remorque</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un camion quoi !</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">marque</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constuctor du Camion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Camion constructor&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Camion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marque</span> <span class="o">=</span> <span class="n">marque</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># on constuit un camion bleu de 35T</span>
+    <span class="n">mon_beau_camion</span> <span class="o">=</span> <span class="n">Camion</span><span class="p">(</span><span class="n">marque</span><span class="o">=</span><span class="s">&#39;Daf&#39;</span><span class="p">,</span>
+                             <span class="n">nombre_de_roues</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                             <span class="n">moteur</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                             <span class="n">couleur</span><span class="o">=</span><span class="s">&#39;bleu&#39;</span><span class="p">,</span>
+                             <span class="n">capacite</span><span class="o">=</span><span class="mi">35000</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Mon beau camion </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> a </span><span class="si">%s</span><span class="s"> roues et transporte </span><span class="si">%s</span><span class="s">T&quot;</span>
+          <span class="o">%</span> <span class="p">(</span><span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">marque</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">couleur</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">nombre_de_roues</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">capacite</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">))</span>
+</pre></div>
+<p>Il y a un premier impact d'utiliser **kwargs: on va devoir nommer
+tous nos arguments à l'appel de la méthode.
+Pour tout dire, on pourrait aussi utiliser *args en plus de **kwargs pour
+récupérer les arguments non nommés, mais cela ne marcherait qu'au premier niveau
+(et encore, il faut vraiment savoir ce que l'on fait), donc on va l'éviter et
+s'obliger à nommer les arguments lors des appels.
+C'est d'ailleurs une bonne pratique générale à toujours utiliser: cela rend
+le code plus lisible</p>
+<div class="admonition-bonne-pratique admonition">
+<p class="first admonition-title">Bonne pratique</p>
+<p class="last">Toujours appeller une fonction ou une méthode en nommant chaque argument</p>
+</div>
+<p>Donc que se passe-t-il dans nos appels (en théorie):</p>
+<ol class="arabic simple">
+<li>on appelle __init__ de Camion avec 5 arguments nommés.</li>
+<li>le constructeur de Camion attend lui un argument en particulier: marque
+Il va donc récupérer pour lui l'argument marque et laisser tous les autres
+dans un dict-like: kwargs</li>
+<li>on appelle super() avec **kwargs, du coup chaque constructeur de Vehicule et
+Remorque va récupérer les 4 arguments restant qui chacun prendrons
+ce dont ils ont besoin.</li>
+</ol>
+<p>Dans cet exemple, cela devrait donc bien fonctionner.
+Par contre on pourrait imaginer un exemple plus complexe ou une classe parente
+aurait aussi un argument 'marque' dans son constructeur. Et là, comme marque a
+été 'attrapé' par le contructeur de Camion, il ne serait pas passé aux constructeurs
+Parent.
+On va donc procéder d'une manière un peu moins souple, mais plus générique:
+utiliser uniquement **kwargs:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Vehicule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Classe decrivant un vehicule</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constucteur de vehicule</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :nombre_de_roues: (int); le nombre de roues du vehicule</span>
+<span class="sd">        :moteur: (boolean): est-ce qu&#39;il a un moteur ou non</span>
+<span class="sd">        :couleur: (str): la couleur du vehicule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Vehicule constructor&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_de_roues</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;nombre_de_roues&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moteur</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;moteur&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">couleur</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;couleur&#39;</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">Remorque</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un conteneur d&#39;une certaine capacite</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructeur de Remorque</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :capacite: (float): capactite de stockage en kg</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Remorque constructor&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacite</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;capacite&#39;</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="n">Remorque</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un camion quoi !</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constuctor du Camion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Camion constructor&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Camion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marque</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;marque&#39;</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># on constuit un camion bleu de 35T</span>
+    <span class="n">mon_beau_camion</span> <span class="o">=</span> <span class="n">Camion</span><span class="p">(</span><span class="n">marque</span><span class="o">=</span><span class="s">&#39;Daf&#39;</span><span class="p">,</span>
+                             <span class="n">nombre_de_roues</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                             <span class="n">moteur</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                             <span class="n">couleur</span><span class="o">=</span><span class="s">&#39;bleu&#39;</span><span class="p">,</span>
+                             <span class="n">capacite</span><span class="o">=</span><span class="mi">35000</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Mon beau camion </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> a </span><span class="si">%s</span><span class="s"> roues et transporte </span><span class="si">%s</span><span class="s">T&quot;</span>
+          <span class="o">%</span> <span class="p">(</span><span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">marque</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">couleur</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">nombre_de_roues</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">capacite</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">))</span>
+</pre></div>
+<p>Bon clairement c'est plus moche, mais c'est le moyen de correctement passer
+les arguments aux méthodes des classes parentes.</p>
+<p>Si vous maitrisez parfaitement vos APIs, vous pouvez utiliser la première méthode,
+mais pour __init__ je pense qu'il vaut mieux faire comme ci-dessus.</p>
+<p>Alors, maintenant lançons ce programme:</p>
+<pre class="literal-block">
+Camion constructor
+Vehicule constructor
+Traceback (most recent call last):
+  File &quot;ex2.py&quot;, line 53, in &lt;module&gt;
+    mon_beau_camion.capacite / 1000))
+AttributeError: 'Camion' object has no attribute 'capacite'
+</pre>
+<p>Merde ça ne marche pas !
+Que se passe-t-il ?</p>
+<p>On voit, avant le traceback qu'on est bien passé par le constructeur de Camion
+puis celui de Vehicule. Mais c'est tout...
+Où est passé le constructeur de Remorque ?
+Visiblement il n'a pas été appelé.</p>
+<p>Alors que normalement c'est le boulot de super() de bien appeler tous les
+constructeursquivontbien.
+Alors que ce passe-t-il ?</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p>le MRO c'est quoi ?
+La signification du terme c'est: <strong>Method Resolution Order</strong></p>
+<p>En résumé, c'est le système qu'utilise python pour passer dans chaque classe
+de l'arbre des héritages, de façon a ne passer qu'une fois dans une classe donnée
+et de manière à éviter les boucles ou les résolutions impossibles.</p>
+<p>L'accès au MRO calculé par python est simple, il suffit d'aller regarder __mro__
+pour une Classe donnée.</p>
+<p class="last">Un bon article (en anglais) décrit le mode de calcul du MRO: <a class="reference external" href="http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html#method-resolution-order">MRO description</a></p>
+</div>
+<p>Regardons donc le __mro__ de notre class Camion:</p>
+<div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">Camion</span><span class="o">.</span><span class="n">__mro__</span>
+<span class="p">(</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">__main__</span><span class="o">.</span><span class="n">Camion</span><span class="s">&#39;&gt;,</span>
+ <span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">__main__</span><span class="o">.</span><span class="n">Vehicule</span><span class="s">&#39;&gt;,</span>
+ <span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">__main__</span><span class="o">.</span><span class="n">Remorque</span><span class="s">&#39;&gt;,</span>
+ <span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">object</span><span class="s">&#39;&gt;)</span>
+</pre></div>
+<p>Dans notre exemple, python ira chercher la méthode de Camion, puis a chaque appel de super()
+celle de Vehicule, Remorque et enfin object.</p>
+<p>Alors donc pourquoi notre programme ne va pas appeler Remorque.__init__() ?
+Et bien c'est parce que on a cassé l'arbre de résolution en omettant d'appeler
+super() dans le constructeur de Véhicule.</p>
+<p>Si on ajoute dans Vehicule.__init__:</p>
+<div class="highlight"><pre><span class="nb">super</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+<p>et que l'on relance notre programme, on obtient ceci:</p>
+<pre class="literal-block">
+Camion constructor
+Vehicule constructor
+Remorque constructor
+Mon beau camion Daf bleu a 4 roues et transporte 35.0T
+</pre>
+<p>Cela fonctionne.
+Pourtant il manque encore un appel de super() dans le constructeur de Remorque.
+Ici cela ne porte pas à conséquence, car le le mro, Remorque est le dernier appelé
+avant object. Donc on a cassé la résolution mais à la toute fin.</p>
+<p>Toutefois, si on inversait l'ordre d'héritage dans Camion en mettant:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Remorque</span><span class="p">,</span> <span class="n">Vehicule</span><span class="p">):</span>
+</pre></div>
+<p>au lieu de:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="n">Remorque</span><span class="p">):</span>
+</pre></div>
+<p>et que l'on relance le programme, on obtient à nouveau une erreur:</p>
+<pre class="literal-block">
+Camion constructor
+Remorque constructor
+Traceback (most recent call last):
+  File &quot;ex3.py&quot;, line 51, in &lt;module&gt;
+    mon_beau_camion.couleur,
+AttributeError: 'Camion' object has no attribute 'couleur'
+</pre>
+<p>En effet, nous nous arretons au constructeur de Remorque par manque de l'appel de super().</p>
+<p>Comme nous ne pouvons pas deviner dans quel ordre un programmeur choisira de faire
+hériter ses classes, il vaut donc mieux mettre l'appel à super() dans toutes les classes.</p>
+<p>Cela donne donc le code complet suivant:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Vehicule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Classe decrivant un vehicule</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constucteur de vehicule</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :nombre_de_roues: (int); le nombre de roues du vehicule</span>
+<span class="sd">        :moteur: (boolean): est-ce qu&#39;il a un moteur ou non</span>
+<span class="sd">        :couleur: (str): la couleur du vehicule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Vehicule constructor&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nombre_de_roues</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;nombre_de_roues&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">moteur</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;moteur&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">couleur</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;couleur&#39;</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">Remorque</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un conteneur d&#39;une certaine capacite</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructeur de Remorque</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        :capacite: (float): capactite de stockage en kg</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Remorque constructor&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Remorque</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacite</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;capacite&#39;</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Vehicule</span><span class="p">,</span> <span class="n">Remorque</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Un camion quoi !</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constuctor du Camion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Camion constructor&#39;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Camion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marque</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;marque&#39;</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># on constuit un camion bleu de 35T</span>
+    <span class="n">mon_beau_camion</span> <span class="o">=</span> <span class="n">Camion</span><span class="p">(</span><span class="n">marque</span><span class="o">=</span><span class="s">&#39;Daf&#39;</span><span class="p">,</span>
+                             <span class="n">nombre_de_roues</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                             <span class="n">moteur</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                             <span class="n">couleur</span><span class="o">=</span><span class="s">&#39;bleu&#39;</span><span class="p">,</span>
+                             <span class="n">capacite</span><span class="o">=</span><span class="mi">35000</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Mon beau camion </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> a </span><span class="si">%s</span><span class="s"> roues et transporte </span><span class="si">%s</span><span class="s">T&quot;</span>
+          <span class="o">%</span> <span class="p">(</span><span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">marque</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">couleur</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">nombre_de_roues</span><span class="p">,</span>
+             <span class="n">mon_beau_camion</span><span class="o">.</span><span class="n">capacite</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">))</span>
+</pre></div>
+<p>et donc au final deux bonnes pratiques supplémentaires:</p>
+<div class="admonition-bonne-pratique admonition">
+<p class="first admonition-title">Bonne pratique</p>
+<p>Toujours ajouter **kwargs dans les méthodes et appeler super() avec
+**kwargs comme argument.</p>
+<p class="last">Pour la méthode __init__(), si possible utiliser uniquement **kwargs</p>
+</div>
+<div class="admonition-bonne-pratique admonition">
+<p class="first admonition-title">Bonne pratique</p>
+<p class="last">Même pour les classes héritant directement de object, il faut
+quand même appeler super(), en particulier pour __init__().</p>
+</div>
+</div>
+<div class="section" id="controverses-et-conclusion">
+<h2>Controverses et conclusion</h2>
+<p>L'utilisation de super() ne fait pas l'unanimité, notamment à cause des
+contraintes décrites plus haut.</p>
+<p>Si tout le monde (en particulier les modules qui ne sont pas les vôtres) n'utilise
+pas ces 'bonnes' pratiques, alors il y a un sérieux risque de casser l'arbre en
+cours de route et que votre programme ne marche pas... alors qu'à la base ce n'est
+pas de votre faute.</p>
+<p>En regardant rapidement les modules standards python, très peu utilisent aujourd'hui
+super(), même en 3.3
+J'imagine que c'est la même chose dans les modules de la communauté, notamment Pypi.</p>
+<p>Du coup il faut être très vigilant lorsque vous programmez des classes a héritage
+multiple avec des modules tiers. Si vous héritez d'un seul module tiers (y compris ceux de la stdlib),
+mettez le en dernier: ainsi s'il casse la résolution, cela ne devrait pas porter
+à conséquence.</p>
+<p>Je pense que la controverse concernant l'utilisation de super() est justement
+due à la faible utilisation de cette fonction, notamment dans les modules standard.
+C'est une histoire de poule et d'oeuf.</p>
+<p>Enfin, perso je trouve la bonne pratique d'utilisation systématique de **kwargs
+relativement peu élégante, notamment en utilisation systématique dans __init__.
+Peut-être une évolution du langage à ce niveau serait souhaitable.</p>
+<p>Si de votre côté, vous avez d'autres pratiques pour gérer ces cas, n'hésitez
+pas à les proposer en commentaire.</p>
+</div>
+<div class="section" id="references">
+<h2>Références</h2>
+<ul class="simple">
+<li><a class="reference external" href="https://fuhm.net/super-harmful/">super considered armful... or not</a></li>
+<li><a class="reference external" href="http://rhettinger.wordpress.com/2011/05/26/super-considered-super/">super considered super</a></li>
+<li><a class="reference external" href="http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html#method-resolution-order">MRO description</a></li>
+<li><a class="reference external" href="http://python-history.blogspot.fr/2010/06/method-resolution-order.html">MRO history</a></li>
+</ul>
+</div>
+
+    </div><!-- /.entry-content -->
+    
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_identifier = "bonnes-pratiques-pour-lheritage-multiple-en-python.html";
+        (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://chirouxorg.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+      </script>
+    </div>
+    
+
+  </article>
+</section>
+
+        <section id="extras" class="body">
+        
+                <div class="blogroll">
+                        <h2>blogroll</h2>
+                        <ul>
+                        
+                            <li><a href="http://www.afpy.org/">afpy</a></li>
+                        
+                            <li><a href="http://www.april.org/">april</a></li>
+                        
+                            <li><a href="http://www.laquadrature.net/fr">la quadrature du net</a></li>
+                        
+                        </ul>
+                </div><!-- /.blogroll -->
+        
+        
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://chiroux.org/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+                            
+
+                        
+                            <li><a href="https://twitter.com/ThomasChiroux">twitter</a></li>
+                        
+                            <li><a href="https://plus.google.com/113683015116617526200/">google+</a></li>
+                        
+                            <li><a href="https://github.com/ThomasChiroux">github</a></li>
+                        
+                        </ul>
+                </div><!-- /.social -->
+        
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
+                </address><!-- /#about -->
+		<p>Sauf si précisé différemment, tout le contenu de ce site est sous licence <a href="http://creativecommons.org/licenses/by-sa/2.0/fr/">creative common CC BY-SA 2.0</a></p>
+                <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36757276-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
+
+
+
+<script type="text/javascript">
+    var disqus_shortname = 'chirouxorg';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = 'http://' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+
+</body>
+</html>
