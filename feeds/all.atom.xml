@@ -132,7 +132,7 @@ le __init__ de Remorque qui n'attend qu'un seul argument.&lt;/p&gt;
 &lt;h2&gt;**kwargs&lt;/h2&gt;
 &lt;p&gt;**kwargs nous permet de passer ce qu'on veut comme arguments à une fonction
 (ou méthode), dans laquelle on ira piocher ce qui nous intesse:&lt;/p&gt;
-&lt;p&gt;Voici une première implantation possible:&lt;/p&gt;
+&lt;p&gt;Voici une première implémentation possible:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Vehicule&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;Classe decrivant un vehicule&lt;/span&gt;
 &lt;span class="sd"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
@@ -327,7 +327,7 @@ Mon beau camion Daf bleu a 4 roues et transporte 35.0T
 &lt;/pre&gt;
 &lt;p&gt;Cela fonctionne.
 Pourtant il manque encore un appel de super() dans le constructeur de Remorque.
-Ici cela ne porte pas à conséquence, car le le mro, Remorque est le dernier appelé
+Ici cela ne porte pas à conséquence, car selon le mro, Remorque est le dernier appelé
 avant object. Donc on a cassé la résolution mais à la toute fin.&lt;/p&gt;
 &lt;p&gt;Toutefois, si on inversait l'ordre d'héritage dans Camion en mettant:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Camion&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Remorque&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Vehicule&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;

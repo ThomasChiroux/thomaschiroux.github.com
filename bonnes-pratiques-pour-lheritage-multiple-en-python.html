@@ -206,7 +206,7 @@ le __init__ de Remorque qui n'attend qu'un seul argument.</p>
 <h2>**kwargs</h2>
 <p>**kwargs nous permet de passer ce qu'on veut comme arguments à une fonction
 (ou méthode), dans laquelle on ira piocher ce qui nous intesse:</p>
-<p>Voici une première implantation possible:</p>
+<p>Voici une première implémentation possible:</p>
 <div class="highlight"><pre><span class="k">class</span> <span class="nc">Vehicule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Classe decrivant un vehicule</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -401,7 +401,7 @@ Mon beau camion Daf bleu a 4 roues et transporte 35.0T
 </pre>
 <p>Cela fonctionne.
 Pourtant il manque encore un appel de super() dans le constructeur de Remorque.
-Ici cela ne porte pas à conséquence, car le le mro, Remorque est le dernier appelé
+Ici cela ne porte pas à conséquence, car selon le mro, Remorque est le dernier appelé
 avant object. Donc on a cassé la résolution mais à la toute fin.</p>
 <p>Toutefois, si on inversait l'ordre d'héritage dans Camion en mettant:</p>
 <div class="highlight"><pre><span class="k">class</span> <span class="nc">Camion</span><span class="p">(</span><span class="n">Remorque</span><span class="p">,</span> <span class="n">Vehicule</span><span class="p">):</span>
