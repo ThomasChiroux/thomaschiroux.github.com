@@ -174,7 +174,7 @@ C'est ici qu'on défini donc une première bonne pratique: l'usage de \*\*kwargs
 \*\*kwargs nous permet de passer ce qu'on veut comme arguments à une fonction
 (ou méthode), dans laquelle on ira piocher ce qui nous intesse:
 
-Voici une première implantation possible:
+Voici une première implémentation possible:
 
 .. code-block:: python
 
@@ -397,7 +397,7 @@ et que l'on relance notre programme, on obtient ceci:
 
 Cela fonctionne.
 Pourtant il manque encore un appel de super() dans le constructeur de Remorque.
-Ici cela ne porte pas à conséquence, car le le mro, Remorque est le dernier appelé
+Ici cela ne porte pas à conséquence, car selon le mro, Remorque est le dernier appelé
 avant object. Donc on a cassé la résolution mais à la toute fin.
 
 Toutefois, si on inversait l'ordre d'héritage dans Camion en mettant:
