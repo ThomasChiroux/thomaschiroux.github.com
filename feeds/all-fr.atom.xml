@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>chiroux.org</title><link href="http://chiroux.org/" rel="alternate"></link><link href="http://chiroux.org/feeds/all-fr.atom.xml" rel="self"></link><id>http://chiroux.org/</id><updated>2012-12-03T00:56:00+01:00</updated><entry><title>Bonnes pratiques (?) pour l'héritage multiple en python</title><link href="http://chiroux.org/bonnes-pratiques-pour-lheritage-multiple-en-python.html" rel="alternate"></link><updated>2012-12-03T00:56:00+01:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2012-12-03:bonnes-pratiques-pour-lheritage-multiple-en-python.html</id><summary type="html">&lt;div class="section" id="gne"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>chiroux.org</title><link href="http://chiroux.org/" rel="alternate"></link><link href="http://chiroux.org/feeds/all-fr.atom.xml" rel="self"></link><id>http://chiroux.org/</id><updated>2012-12-03T00:56:00+01:00</updated><entry><title>Bonnes pratiques (?) pour l'héritage multiple en python</title><link href="http://chiroux.org/bonnes-pratiques-pour-lheritage-multiple-en-python.html" rel="alternate"></link><updated>2012-12-03T00:56:00+01:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2012-12-03:bonnes-pratiques-pour-lheritage-multiple-en-python.html</id><summary type="html">&lt;div class="figure"&gt;
+&lt;img alt="Man of steel - CC - auteur: http://www.flickr.com/photos/thomashawk/2344049327/" src="media/images/superman_truck.jpg" style="width: 341px; height: 222px;" /&gt;
+&lt;p class="caption"&gt;Man of steel - CC - &lt;a class="reference external" href="http://www.flickr.com/photos/thomashawk/2344049327/"&gt;auteur&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="gne"&gt;
 &lt;h2&gt;Gné ?&lt;/h2&gt;
 &lt;p&gt;Récemment je me suis retrouvé confronté à un problème bizarre, incompréhensible
 au premier abord qui m'a fait réfléchir sur mes pratiques en python concernant
@@ -667,7 +671,10 @@ graphiques par exemple, mais aussi plein d'autres choses:&lt;/p&gt;
 &lt;p&gt;&lt;img alt="image5" src="media/images/sense_widgets-1024x566.png" /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-</summary><category term="domotique"></category><category term="internet des objets"></category><category term="oregon"></category><category term="Programmation"></category><category term="Python"></category><category term="rfx-com"></category><category term="xpl"></category></entry><entry><title>Installation d'un couple de serveurs dhcp et dns redondants</title><link href="http://chiroux.org/installation-dun-couple-de-serveurs-dhcp-et-dns-redondants.html" rel="alternate"></link><updated>2009-09-30T00:15:00+02:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2009-09-30:installation-dun-couple-de-serveurs-dhcp-et-dns-redondants.html</id><summary type="html">&lt;img alt="Networked - CC - auteur: http://www.flickr.com/photos/superkimbo/1727117782/" src="media/images/network_servers.jpg" style="width: 500px; height: 333px;" /&gt;
+</summary><category term="domotique"></category><category term="internet des objets"></category><category term="oregon"></category><category term="Programmation"></category><category term="Python"></category><category term="rfx-com"></category><category term="xpl"></category></entry><entry><title>Installation d'un couple de serveurs dhcp et dns redondants</title><link href="http://chiroux.org/installation-dun-couple-de-serveurs-dhcp-et-dns-redondants.html" rel="alternate"></link><updated>2009-09-30T00:15:00+02:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2009-09-30:installation-dun-couple-de-serveurs-dhcp-et-dns-redondants.html</id><summary type="html">&lt;div class="figure"&gt;
+&lt;img alt="Networked - CC - auteur: http://www.flickr.com/photos/superkimbo/1727117782/" src="media/images/network_servers.jpg" style="width: 250px; height: 166px;" /&gt;
+&lt;p class="caption"&gt;Networked - CC - &lt;a class="reference external" href="http://www.flickr.com/photos/superkimbo/1727117782/"&gt;auteur&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
 &lt;p&gt;Cette fois ci, on s'oriente plus du côté des petites entreprises qui ont
 rapidement besoin d'une gestion interne du réseau, simple, efficace et
 sécurisée. Le but de cet article est donc de montrer pas à pas comment
@@ -675,7 +682,7 @@ monter deux serveurs dhcp+dns qui se backupent l'un l'autre de manière
 transparente. Ces deux serveurs seront les piliers du réseau naissant de
 la petite entreprise.&lt;/p&gt;
 &lt;p&gt;Pour l'installation de base, il suffit de suivre
-le &lt;a class="reference external" href="http://chiroux.org/installation-dun-serveur-web-securise-sous-ubuntu-9-04server/"&gt;tuto d'installation d'un serveur ubuntu&lt;/a&gt;, en s'arrêtant juste avant
+le &lt;a class="reference external" href="http://chiroux.org/installation-dun-serveur-web-securise-sous-ubuntu-9-04server.html/"&gt;tuto d'installation d'un serveur ubuntu&lt;/a&gt;, en s'arrêtant juste avant
 l'install de lighttpd qui n'est pas nécessaire ici (mais cela marche
 aussi avec bien sûr). Le tuto a l'air assez long mais il est
 relativement simple et rapide à mettre en oeuvre : en partant de deux

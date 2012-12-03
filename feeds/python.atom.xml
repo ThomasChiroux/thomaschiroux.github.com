@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>chiroux.org</title><link href="http://chiroux.org/" rel="alternate"></link><link href="http://chiroux.org/feeds/python.atom.xml" rel="self"></link><id>http://chiroux.org/</id><updated>2012-12-03T00:56:00+01:00</updated><entry><title>Bonnes pratiques (?) pour l'héritage multiple en python</title><link href="http://chiroux.org/bonnes-pratiques-pour-lheritage-multiple-en-python.html" rel="alternate"></link><updated>2012-12-03T00:56:00+01:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2012-12-03:bonnes-pratiques-pour-lheritage-multiple-en-python.html</id><summary type="html">&lt;div class="section" id="gne"&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>chiroux.org</title><link href="http://chiroux.org/" rel="alternate"></link><link href="http://chiroux.org/feeds/python.atom.xml" rel="self"></link><id>http://chiroux.org/</id><updated>2012-12-03T00:56:00+01:00</updated><entry><title>Bonnes pratiques (?) pour l'héritage multiple en python</title><link href="http://chiroux.org/bonnes-pratiques-pour-lheritage-multiple-en-python.html" rel="alternate"></link><updated>2012-12-03T00:56:00+01:00</updated><author><name>Thomas Chiroux</name></author><id>tag:chiroux.org,2012-12-03:bonnes-pratiques-pour-lheritage-multiple-en-python.html</id><summary type="html">&lt;div class="figure"&gt;
+&lt;img alt="Man of steel - CC - auteur: http://www.flickr.com/photos/thomashawk/2344049327/" src="media/images/superman_truck.jpg" style="width: 341px; height: 222px;" /&gt;
+&lt;p class="caption"&gt;Man of steel - CC - &lt;a class="reference external" href="http://www.flickr.com/photos/thomashawk/2344049327/"&gt;auteur&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="gne"&gt;
 &lt;h2&gt;Gné ?&lt;/h2&gt;
 &lt;p&gt;Récemment je me suis retrouvé confronté à un problème bizarre, incompréhensible
 au premier abord qui m'a fait réfléchir sur mes pratiques en python concernant

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>Bonnes pratiques pour l'héritage multiple en python</title>
+        <title>Ce qui a changé dans ma pratique après PyCon FR 2012</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href=".././theme/css/main.css" type="text/css" />
         
@@ -51,7 +51,7 @@
     <header>
       <h1 class="entry-title">
         <a href="temp.html" rel="bookmark"
-           title="Permalink to Bonnes pratiques pour l'héritage multiple en python">Bonnes pratiques pour l'héritage multiple en python</a></h1>
+           title="Permalink to Ce qui a changé dans ma pratique après PyCon FR 2012">Ce qui a changé dans ma pratique après PyCon FR 2012</a></h1>
       
 <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="ThomasChiroux">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
 
@@ -59,8 +59,8 @@
 
     <div class="entry-content">
       <footer class="post-info">
-        <abbr class="published" title="2012-11-30T12:24:52.259621">
-                Fri 30 November 2012
+        <abbr class="published" title="2012-12-12T00:00:00">
+                Wed 12 December 2012
         </abbr>
 
         
@@ -73,17 +73,36 @@
 
 
 </footer><!-- /.post-info -->
-      <ul class="simple">
-<li>c'est quoi ?</li>
-<li>un exemple simple</li>
-<li>MRO</li>
-<li>l'appel de super()</li>
-<li>la problématique de super() sur les classes héritant d'object</li>
-<li>bonne pratique 1: toujours ajouter super()</li>
-<li>les paramètres différents</li>
-<li>comment pallier au problème: **kwargs</li>
-<li>bonne pratique 2: toujours ajouter  **kwargs dans les méthodes super()</li>
+      <p>Autre résumé:
+<a class="reference external" href="http://tech.novapost.fr/pyconfr-2012-a-la-villette-le-resume.html">http://tech.novapost.fr/pyconfr-2012-a-la-villette-le-resume.html</a></p>
+<div class="section" id="ce-qui-a-change-directement-dans-ma-facon-de-coder">
+<h2>Ce qui a changé directement dans ma façon de coder</h2>
+<ul class="simple">
+<li>logging.debug('message : %s', info) au lieu de logging.debug('message : %s' % info)</li>
+<li>mkvirtualenv, workon, etc... (virtualenvwrapper)</li>
+<li>setuptools &amp; co: tooth.paste, d2to1 ??</li>
+<li>Pousser la doc sur readthedoc =&gt; beaucoup plus simple (update auto)</li>
 </ul>
+</div>
+<div class="section" id="ce-qui-m-a-fait-creuser-par-moi-meme">
+<h2>Ce qui m'a fait creuser par moi même</h2>
+<p>tests unitaires de performance</p>
+</div>
+<div class="section" id="ce-que-j-ai-change-au-boulot">
+<h2>Ce que j'ai changé au boulot</h2>
+<ul class="simple">
+<li>circus au lieu d'une solution propriétaire ?</li>
+<li>fabric / fabric.tools ?</li>
+</ul>
+</div>
+<div class="section" id="des-nouveaux-projets">
+<h2>Des nouveaux projets</h2>
+<p>Pymite and co</p>
+</div>
+<div class="section" id="divers">
+<h2>Divers</h2>
+<p>impress.js</p>
+</div>
 
     </div><!-- /.entry-content -->
     
@@ -146,6 +165,17 @@
                 <p>The theme is by <a href="http://coding.smashingmagazine.com/2009/08/04/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
         </footer><!-- /#contentinfo -->
 
+
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36757276-1']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    </script>
 
 
 
