@@ -7,9 +7,6 @@ Ce qui a changé dans ma pratique après PyCon FR 2012
 :slug: temp
 :status: draft
 
-Autre résumé:
-http://tech.novapost.fr/pyconfr-2012-a-la-villette-le-resume.html
-
 Ce qui a changé directement dans ma façon de coder
 --------------------------------------------------
 
@@ -30,8 +27,12 @@ tests unitaires de performance
 Ce que j'ai changé au boulot
 ----------------------------
 
-* circus au lieu d'une solution propriétaire ?
 * fabric / fabric.tools ?
+
+ce que je n'ai pas (encore eu le temps de tester)
+*************************************************
+
+* circus au lieu d'une solution propriétaire ?
 
 Des nouveaux projets
 --------------------
@@ -43,3 +44,7 @@ Divers
 
 impress.js
 
+
+
+Autre résumé:
+http://tech.novapost.fr/pyconfr-2012-a-la-villette-le-resume.html
