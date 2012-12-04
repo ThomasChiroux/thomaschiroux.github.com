@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>chiroux.org</title><link>http://chiroux.org/</link><description></description><atom:link href="http://chiroux.org/feeds/python.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 03 Dec 2012 00:56:00 +0100</lastBuildDate><item><title>Bonnes pratiques (?) pour l'héritage multiple en python</title><link>http://chiroux.org/bonnes-pratiques-pour-lheritage-multiple-en-python.html</link><description>&lt;div class="figure"&gt;
-&lt;img alt="Man of steel - CC - auteur: http://www.flickr.com/photos/thomashawk/2344049327/" src="media/images/superman_truck.jpg" style="width: 341px; height: 222px;" /&gt;
+&lt;img alt="Man of steel - CC - auteur: http://www.flickr.com/photos/thomashawk/2344049327/" src="static/media/images/superman_truck.jpg" style="width: 341px; height: 222px;" /&gt;
 &lt;p class="caption"&gt;Man of steel - CC - &lt;a class="reference external" href="http://www.flickr.com/photos/thomashawk/2344049327/"&gt;auteur&lt;/a&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="gne"&gt;
@@ -449,7 +449,7 @@ pas à les proposer en commentaire.&lt;/p&gt;
 &lt;li&gt;&lt;a class="reference external" href="http://python-history.blogspot.fr/2010/06/method-resolution-order.html"&gt;MRO history&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Thomas Chiroux</dc:creator><pubDate>Mon, 03 Dec 2012 00:56:00 +0100</pubDate><guid>tag:chiroux.org,2012-12-03:bonnes-pratiques-pour-lheritage-multiple-en-python.html</guid><category>python</category><category>programmation</category><category>objet</category></item><item><title>Envoyer les infos des capteurs oregon sur sen.se</title><link>http://chiroux.org/envoyer-les-infos-des-capteurs-oregon-sur-sense.html</link><description>&lt;p&gt;&lt;img alt="thgr328n" src="media/images/thgr328n.png" /&gt;&lt;/p&gt;
+</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Thomas Chiroux</dc:creator><pubDate>Mon, 03 Dec 2012 00:56:00 +0100</pubDate><guid>tag:chiroux.org,2012-12-03:bonnes-pratiques-pour-lheritage-multiple-en-python.html</guid><category>python</category><category>programmation</category><category>objet</category></item><item><title>Envoyer les infos des capteurs oregon sur sen.se</title><link>http://chiroux.org/envoyer-les-infos-des-capteurs-oregon-sur-sense.html</link><description>&lt;p&gt;&lt;img alt="thgr328n" src="static/media/images/thgr328n.png" /&gt;&lt;/p&gt;
 &lt;p&gt;Depuis quelques temps, je beta-teste &lt;a class="reference external" href="http://open.sen.se/"&gt;sen.se&lt;/a&gt;, un site à la &lt;a class="reference external" href="https://pachube.com/"&gt;pachube&lt;/a&gt; qui est
 une sorte de plate-forme pour l'internet des objets. L'objet de cet
 article n'est pas (encore) de découvrir et parcourir les différents
@@ -578,7 +578,7 @@ Celui-ci, il faut le lancer en cron, par exemple toute les 10 minutes:&lt;/p&gt;
 &lt;p&gt;ainsi tous les 10 minutes, les graphs seront mis à jour. Yapuka intégrer ces pages dans
 un petit site web (sous lighty par exemple, &lt;a class="reference external" href="http://www.chiroux.com/installation-dun-serveur-web-securise-sous-ubuntu-9-04server/"&gt;voir un autre tuto pour
 ça&lt;/a&gt;)&lt;/p&gt;
-&lt;p&gt;&lt;img alt="image1" src="media/images/rrd-300x125.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image1" src="static/media/images/rrd-300x125.png" /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="sen-se"&gt;
@@ -590,9 +590,9 @@ c'est actuellement en beta, il faut demander à s'inscrire) et ensuite il
 va falloir créer autant de 'devices' que vous avez de capteurs et les
 flux au sein de ces devices.&lt;/p&gt;
 &lt;p&gt;Ex ici avec un de mes capteurs oregon:
-&lt;img alt="image2" src="media/images/sense1.png" /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img alt="image3" src="media/images/sense2.png" /&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img alt="image4" src="media/images/sense3.png" /&gt;&lt;/p&gt;
+&lt;img alt="image2" src="static/media/images/sense1.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image3" src="static/media/images/sense2.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image4" src="static/media/images/sense3.png" /&gt;&lt;/p&gt;
 &lt;p&gt;On récupère donc des Feed_id, c'est ce qui
 va nous permettre d'associer chaque mesure : chaque mesure de chaque
 capteur sera associé à son propre feed ID. Ensuite il faut un programme
@@ -647,7 +647,7 @@ a.b.c.d par l'adresse IP de la machine sur laquelle vous lancez ce
 script. Et voilà c'est tout, les flux vont remonter tout seul vers
 sen.se et vous pourrez en faire ce que vous voulez, comme des widgets
 graphiques par exemple, mais aussi plein d'autres choses:&lt;/p&gt;
-&lt;p&gt;&lt;img alt="image5" src="media/images/sense_widgets-1024x566.png" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="image5" src="static/media/images/sense_widgets-1024x566.png" /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 </description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Thomas Chiroux</dc:creator><pubDate>Fri, 12 Aug 2011 17:18:00 +0200</pubDate><guid>tag:chiroux.org,2011-08-12:envoyer-les-infos-des-capteurs-oregon-sur-sense.html</guid><category>domotique</category><category>internet des objets</category><category>oregon</category><category>Programmation</category><category>Python</category><category>rfx-com</category><category>xpl</category></item></channel></rss>
