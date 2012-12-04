@@ -5,7 +5,7 @@ Installation d'un couple de serveurs dhcp et dns redondants
 :tags: bind, configuration, dhcp, jaunty, linux, redondant, ubuntu
 :lang: fr
 
-.. figure:: media/images/network_servers.jpg
+.. figure:: static/media/images/network_servers.jpg
    :width: 250 px
    :height: 166 px
    :alt: Networked - CC - auteur: http://www.flickr.com/photos/superkimbo/1727117782/

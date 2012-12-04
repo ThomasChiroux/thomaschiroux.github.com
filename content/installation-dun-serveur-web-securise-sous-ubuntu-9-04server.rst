@@ -6,7 +6,7 @@ Installation d'un serveur web sécurisé sous Ubuntu server (9.04 à 10.04)
 :slug: installation-dun-serveur-web-securise-sous-ubuntu-9-04server
 :lang: fr
 
-.. image:: media/images/ubuntu-logo.png
+.. image:: static/media/images/ubuntu-logo.png
    :height: 100 px
    :width: 105 px
    :alt: ubuntu logo
