@@ -16,6 +16,7 @@ PDF_GENERATOR = False
 REVERSE_CATEGORY_ORDER = True
 LOCALE = "C"
 DEFAULT_PAGINATION = 10
+RELATIVE_URLS = False
 
 FEED_ALL_RSS = 'feeds/all.rss.xml'
 CATEGORY_FEED_RSS = 'feeds/%s.rss.xml'
