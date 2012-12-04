@@ -270,10 +270,10 @@ graphiques par exemple, mais aussi plein d'autres choses:
 .. _disponible ici sur bitbucket: https://bitbucket.org/ThomasChiroux/py-xplsensor2net
 .. _domogik: http://wiki.domogik.org/
 
-.. |thgr328n| image:: media/images/thgr328n.png
-.. |image1| image:: media/images/rrd-300x125.png
-.. |image2| image:: media/images/sense1.png
-.. |image3| image:: media/images/sense2.png
-.. |image4| image:: media/images/sense3.png
-.. |image5| image:: media/images/sense_widgets-1024x566.png
-.. |image6| image:: media/images/thgr328n.png
+.. |thgr328n| image:: static/media/images/thgr328n.png
+.. |image1| image:: static/media/images/rrd-300x125.png
+.. |image2| image:: static/media/images/sense1.png
+.. |image3| image:: static/media/images/sense2.png
+.. |image4| image:: static/media/images/sense3.png
+.. |image5| image:: static/media/images/sense_widgets-1024x566.png
+.. |image6| image:: static/media/images/thgr328n.png
